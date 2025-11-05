@@ -9,22 +9,216 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Introduccion
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte del Proyecto de Ordenación Forestal del mismo, el siguiente código integra Python desde R Studio para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## Crear repositorio en GitHub para guardar el proyecto
 
-```{r cars}
-summary(cars)
+El proyecto sera guardado en un repositorio de github para poder darle trazabilidad al mismo y compartirlo libremente
+
+```{github}
+# ============================================================
+# 🔗 CONFIGURAR GIT Y GITHUB DESDE RSTUDIO
+# ============================================================
+
+# 1️⃣ Instalar e importar el paquete necesario
+#install.packages("usethis")
+library(usethis)
+
+# ------------------------------------------------------------
+# 2️⃣ CONFIGURAR TU IDENTIDAD DE GIT
+# (Estos datos deben coincidir con tu cuenta de GitHub)
+# ------------------------------------------------------------
+use_git_config(
+  user.name = "BioRamirez",                    # tu nombre de usuario de GitHub
+  user.email = "bioramirezjuan@gmail.com"      # el correo vinculado a GitHub
+)
+
+# Puedes verificar si Git está correctamente instalado en tu PC
+system("git --version")   # o desde la terminal de RStudio: git --version
+
+
+# ============================================================
+# 3️⃣ CREAR UN TOKEN PERSONAL DE ACCESO (PAT)
+# ============================================================
+
+# Esto abrirá tu navegador para crear un token con permisos "repo"
+usethis::create_github_token(scopes = c("repo"))
+
+# 👉 En GitHub, copia el token (algo como: ghp_sD7xKfLZtPq6...)
+
+# ============================================================
+# 4️⃣ GUARDAR EL TOKEN EN TU SISTEMA DE R
+# ============================================================
+
+# Esto abrirá tu archivo .Renviron
+usethis::edit_r_environ()
+
+# 💡 En el archivo que se abre, pega una línea como esta (sin comillas):
+# GITHUB_PAT=ghp_tuTokenLargoQueCopiasteDeGitHub
+# Guarda y cierra el archivo, luego REINICIA RStudio.
+
+# ============================================================
+# 5️⃣ VERIFICAR QUE R RECONOZCA TU TOKEN
+# ============================================================
+Sys.getenv("GITHUB_PAT")
+# ✅ Debe mostrar tu token (o al menos empezar con "ghp_").
+# Si devuelve "", vuelve a editar el .Renviron y revisa la sintaxis.
+
+
+# ============================================================
+# 6️⃣ INICIALIZAR GIT EN TU PROYECTO LOCAL
+# ============================================================
+
+# 📁 Asegúrate de estar dentro del proyecto que deseas conectar
+# Si no tienes un proyecto abierto, crea uno nuevo en RStudio (File > New Project)
+usethis::use_git()
+
+# 👉 Esto crea la carpeta .git y un archivo .gitignore
+# RStudio puede pedirte reiniciar; hazlo.
+
+
+# ============================================================
+# 7️⃣ CREAR Y VINCULAR REPOSITORIO EN GITHUB
+# ============================================================
+
+# Esto creará automáticamente un repositorio en GitHub
+# y lo enlazará con tu proyecto local
+usethis::use_github()
+
+# 🔸 Se hará un commit inicial y se subirá el código a GitHub.
+# 🔸 Se abrirá el repositorio en tu navegador.
+
+
+# ============================================================
+# 8️⃣ VERIFICAR LA CONEXIÓN
+# ============================================================
+
+system("git remote -v")
+
+# Debes ver algo como:
+# origin  https://github.com/BioRamirez/NombreDeTuRepo.git (fetch)
+# origin  https://github.com/BioRamirez/NombreDeTuRepo.git (push)
+
+
+# ============================================================
+# 9️⃣ SUBIR CAMBIOS FUTUROS
+# ============================================================
+system('git config --global --list')
+user.name=BioRamirez
+user.email=bioramirezjuan@gmail.com
+
+system('git config --global --list')
+
+# Después de modificar tu proyecto, ejecuta:
+system("git add .")                         # Añade todos los archivos
+system('git commit -m "Actualización de análisis"')  # Describe el cambio
+system("git push")                          # Sube los cambios a GitHub
+
+# O puedes usar el panel Git en RStudio (arriba a la derecha).
+
+
+# ============================================================
+# 🧠 EXTRA: VERIFICAR ESTADO DE GIT EN CUALQUIER MOMENTO
+# ============================================================
+system("git status")
+
+#----------------------------------------------------Iniciar Python en R studio--------------------------
+
+system("python --version")
+
+#Instalar paquete para ejecutar python en R studio
+#install.packages("reticulate")
+library(reticulate)
+
+py_config()
+
+#---------------------------------------------------------------------------------------------------------
+
 ```
 
-## Including Plots
+# Analisis de datos
+Se lee el archivo con los registros y los datos ecológicos desde un xlsx en el ordenador donde se realiza el análisis
 
-You can also embed plots, for example:
+Hay que recordar que se trabajara desde python, utilizando pandas y leyendo archivos xlsx, para esto se aplica el paquete reticulate para trbajar python desde r studio.
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+library(reticulate)
+
+# Instalar pandas y openpyxl si aún no los tienes
+#py_install(c("pandas", "openpyxl"))
+
+# Ejecutar código Python desde R
+py_run_string("
+import pandas as pd
+
+# Leer el archivo Excel
+Registros = pd.read_excel('D:/CORPONOR 2025/FOTOS/POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx')
+
+# Mostrar las primeras filas
+print(Registros.head())
+")
+
+# También puedes traer el DataFrame a R si lo necesitas:
+Registros <- py$Registros
+View(Registros)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Ver tabla de registros
+
+```{python}
+print(Registros.head())
+```
+
+# Metodologia
+
+
+A continuación, se describen los análisis realizados sobre la información obtenida durante el muestreo de fauna.
+Riqueza de especies.
+
+Para el presente estudio, la diversidad o riqueza de especies es definida como el número de especies en la zona de estudio, de este modo, y con el fin de hacer una determinación gráfica, se discriminó la totalidad de especies registrados en jerarquías taxonómicas (Orden, Familia, Género, Especie), con el objetivo de identificar el grado de representatividad de cada una.
+
+## Curvas de acumulación de especies
+En general, para evaluar la representatividad de los muestreos, se empleó la curva de acumulación de especies para cada una de las coberturas muestreadas, que representa el número de especies acumulado en el inventario frente al esfuerzo de muestreo realizado. De esta manera, la curva de acumulación es la representación gráfica de la cantidad de las especies que van apareciendo en el muestreo. Los cálculos se realizaron utilizando R Studio y Python, disponible en línea. Para determinar la eficiencia de estos muestreos, se utilizaron los estimadores como ACE, Chao de primer orden, Jacknife 1 o Bootstrap, los cuales arrojan resultados más precisos al estimar la riqueza de ensamblajes con gran cantidad de especies “raras".
+
+## Diversidad alfa
+Para este análisis se utilizó R Studio y Python con el fin de realiza los análisis de dominancia de Simpson, equitatividad de Pielou y diversidad de Shannon), los cuales nos indican la diversidad de especies de una comunidad particular a la que consideramos homogénea.
+
+## Índice de Simpson (Ds)
+Expresa la probabilidad de extraer de la comunidad dos (2) individuos capturados al azar que pertenezcan a la misma especie. Es una medida de cuan dominante es una especie, de esta manera las especies comunes tiene mucho peso respecto a las especies raras. Oscila entre 0 y (1-1/S.
+
+## Índice de Shannon (H´)
+El índice de Shannon-Wiener es uno de los índices de medida más simples y de uso más extenso, que mide el grado promedio de incertidumbre para predecir la especie a la que pertenece un individuo dado, elegido al azar dentro de la comunidad. Mide la variedad de especies de un área determinada, indicando su diversidad y frecuencia; una alta diversidad indica un alto grado de desarrollo y estabilidad de la biota; se basa en la abundancia proporcional de las especies como en su riqueza; se incrementa con el número de especies y el número de individuos.
+
+## Índice de equitatividad de Pielou (J)
+El Índice de equitatividad de Pielou (J’) mide la proporción de la diversidad observada con relación a la máxima diversidad esperada. Su valor va de cero a uno de forma que uno corresponde a situaciones donde todas las especies son igualmente abundantes. Esta medida al igual que Shannon considera que todas las especies de la comunidad se han contabilizado en la muestra.
+
+## Curvas rango abundancia
+Para comparar la abundancia y la uniformidad de especies entre las diferentes unidades muestrales, se realizaron gráficas de rango abundancia, siendo ampliamente utilizadas en estudios de caracterización de fauna.
+
+## Gremios tróficos
+Los gremios tróficos se definieron como omnívoro (consumo de material vegetal, animal y alimentos procesados), Insectívoro (consumo de insectos), Folívoro (consumo de hojas), Granívoro (consumo de granos y semillas), Herbívoro (consumo de vegetales), Hematófagos (consumo de sangre), Frugívoro (consumo de frutos), carnívoro (consumo de carne de otros animales), Nectarívoro (consumo del néctar de las flores), Piscívoro (consumo de peces) y Carroñero (consumo de cadáveres de animales). La caracterización trófica, se realizó en base a los resultados de abundancia relativa, para facilitar la cuantificación de la misma.
+
+## Especies sensibles
+Posterior a esto, se evaluaron las especies sensibles presentes en las CNAS del proyecto. Estas especies se reconocen como todas aquellas que, debido a alguna característica ecológica o poblacional, son más perceptivas al cambio ambiental que producen las actividades antrópicas. A partir de esto, fueron analizadas aquellas especies que han sido catalogadas como amenazadas de extinción, para lo cual se tuvieron en cuenta las categorías establecidas a nivel global por la Unión Internacional para la Conservación de la Naturaleza UICN (2021), y a nivel nacional por la Resolución 0126 de 2024 del MADS. Así mismo, se analizaron aquellas especies que presentan restricción en su comercio a través de la lista de la Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres (CITES), aquellas que tuvieran rangos de distribución muy pequeños o restringidos (endémicas) y las especies con algún patrón de migración dentro del territorio, para lo cual fue evaluado el Plan Nacional de especies Migratorias de Naranjo y Amaya y Naranjo et al.   y la Guía de las especies migratorias de la biodiversidad en Colombia de Amaya-Espinel y Zapata.
+
+Siguiendo los criterios establecidos por la Unión Internacional para la Conservación de la naturaleza (IUCN), las categorías de amenaza han sido definidas como:
+
+En Peligro Crítico (CR): en esta categoría se incluyen las especies que enfrentan un riesgo extremadamente alto de extinción en estado silvestre, en el futuro inmediato.
+
+En Peligro (EN): esta categoría incluye las especies que no están en “peligro crítico”, pero están enfrentando un muy alto riesgo de extinción o deterioro poblacional en estado silvestre, en el futuro cercano.
+
+Vulnerables (VU): un taxón está en la categoría de VU, cuando la mejor evidencia disponible indica que enfrenta un moderado riesgo de extinción o deterioro poblacional a mediano plazo.
+
+Las especies amparadas por la Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres (CITES), se encuentran incluidas en tres apéndices según el grado de protección que necesiten, los cuales se describen a continuación:
+
+Apéndice I: Incluye todas las especies en peligro de extinción, y el comercio de esas especies se autorizará solamente bajo circunstancias excepcionales. 
+
+Apéndice II: Incluye las especies que no se encuentran necesariamente en peligro de extinción, pero cuyo comercio debe controlarse a fin de evitar una utilización incompatible con su supervivencia. 
+
+Apéndice III: Incluye especies que están protegidas al menos en un país, el cual ha solicitado la asistencia de otras partes de las CITES para controlar su comercio.
+
+
+Los análisis y gráficos se realizaron con los softwares libres R Studio, Python y una hoja de cálculo de Microsoft Excel. 
+
