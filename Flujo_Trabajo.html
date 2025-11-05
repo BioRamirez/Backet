@@ -546,6 +546,51 @@ y con el fin de hacer una determinación gráfica, se discriminó la
 totalidad de especies registrados en jerarquías taxonómicas (Orden,
 Familia, Género, Especie), con el objetivo de identificar el grado de
 representatividad de cada una.</p>
+<div id="esfuerzo-de-muestreo" class="section level2">
+<h2>Esfuerzo de Muestreo</h2>
+<p>El esfuerzo de muestreo (E) se estimó de acuerdo con la metodología
+empleada y las características del grupo taxonómico evaluado,
+considerando la relación entre el número de unidades de muestreo, el
+tiempo efectivo de muestreo y, cuando aplicó, el número de observadores
+o dispositivos utilizados. En términos generales, el esfuerzo se calculó
+multiplicando el número de unidades de muestreo (trampas, redes,
+cámaras, transectos o puntos de observación) por el tiempo de exposición
+o duración de cada sesión de muestreo (horas, días o noches), ajustado
+al número de personas o equipos activos en campo. Esta aproximación
+permite estandarizar la intensidad del muestreo entre diferentes métodos
+y grupos biológicos, facilitando la comparación de resultados y la
+estimación del éxito de muestreo (Em), definido como la razón entre el
+número total de registros obtenidos y el esfuerzo total aplicado para
+cada técnica.</p>
+</div>
+<div id="tabla-general-grupo-taxonomico" class="section level2">
+<h2>Tabla general grupo taxonomico</h2>
+<p>La tabla presenta la composición taxonómica y ecológica de las
+especies registradas durante el muestreo, organizadas jerárquicamente
+por orden, familia y especie, e incluyendo el nombre común
+correspondiente. Para cada especie se indica su gremio trófico, lo que
+permite identificar los principales grupos funcionales presentes en el
+área de estudio y su papel dentro de la comunidad biológica. Asimismo,
+se especifican las coberturas o tipos de hábitat en las que fueron
+registradas, el valor de abundancia relativa o número de individuos
+observados, y el tipo de registro obtenido (observación directa,
+captura, fotografía, vocalización, entre otros). Esta información
+permite evaluar la diversidad, la estructura trófica y el grado de
+representatividad de las especies en las distintas coberturas
+evaluadas.</p>
+</div>
+<div id="figura-de-ordenes_familias" class="section level2">
+<h2>Figura de Ordenes_Familias</h2>
+<p>La figura muestra la representatividad taxonómica de las especies
+registradas en el área de estudio, organizadas según su distribución por
+órdenes y familias. Se observa la variación en el número de especies por
+familia dentro de cada orden, lo que permite identificar los grupos con
+mayor riqueza y contribución a la diversidad total. Este tipo de
+representación facilita visualizar la estructura taxonómica de la
+comunidad y resalta los patrones de dominancia o equidad entre familias,
+proporcionando una base para analizar la composición y diversidad
+biológica del área evaluada.</p>
+</div>
 <div id="curvas-de-acumulación-de-especies" class="section level2">
 <h2>Curvas de acumulación de especies</h2>
 <p>En general, para evaluar la representatividad de los muestreos, se
@@ -560,13 +605,13 @@ los estimadores como ACE, Chao de primer orden, Jacknife 1 o Bootstrap,
 los cuales arrojan resultados más precisos al estimar la riqueza de
 ensamblajes con gran cantidad de especies “raras”.</p>
 </div>
-<div id="diversidad-alfa" class="section level2">
-<h2>Diversidad alfa</h2>
+</div>
+<div id="diversidad-alfa" class="section level1">
+<h1>Diversidad alfa</h1>
 <p>Para este análisis se utilizó R Studio y Python con el fin de realiza
 los análisis de dominancia de Simpson, equitatividad de Pielou y
 diversidad de Shannon), los cuales nos indican la diversidad de especies
 de una comunidad particular a la que consideramos homogénea.</p>
-</div>
 <div id="índice-de-simpson-ds" class="section level2">
 <h2>Índice de Simpson (Ds)</h2>
 <p>Expresa la probabilidad de extraer de la comunidad dos (2) individuos
@@ -597,10 +642,36 @@ contabilizado en la muestra.</p>
 </div>
 <div id="curvas-rango-abundancia" class="section level2">
 <h2>Curvas rango abundancia</h2>
-<p>Para comparar la abundancia y la uniformidad de especies entre las
-diferentes unidades muestrales, se realizaron gráficas de rango
-abundancia, siendo ampliamente utilizadas en estudios de caracterización
-de fauna.</p>
+<p>Las curvas rango-abundancia se emplearon para comparar la
+distribución de la abundancia y la uniformidad de las especies entre las
+diferentes unidades de muestreo. Este tipo de representación permite
+visualizar tanto la riqueza específica (a partir de la longitud del eje
+de rango) como la dominancia o equidad en la abundancia de las especies
+(según la pendiente de la curva). Para facilitar la interpretación y
+reducir la asimetría de los datos, los valores de abundancia fueron
+transformados mediante una escala logarítmica de base 10 (log₁₀), lo que
+permite representar de manera proporcional las diferencias entre
+especies comunes y raras. Estas curvas son ampliamente utilizadas en
+estudios de caracterización y estructura de comunidades biológicas, ya
+que permiten evaluar la composición y el grado de dominancia de los
+taxones en los distintos hábitats o coberturas analizadas.</p>
+</div>
+<div id="uso-de-habitat" class="section level2">
+<h2>Uso de habitat</h2>
+<p>Para el análisis del uso de hábitat, se contabilizó el número total
+de especies registradas en cada cobertura, así como aquellas
+consideradas exclusivas, es decir, presentes únicamente en una de ellas.
+Este enfoque permite identificar la representatividad y afinidad de las
+especies con cada tipo de hábitat, facilitando la comparación de la
+riqueza y la singularidad biológica entre unidades de muestreo. Las
+coberturas con mayor número de especies indican una mayor diversidad
+estructural y funcional del hábitat, mientras que aquellas con un número
+elevado de especies exclusivas reflejan condiciones particulares que
+favorecen la presencia de taxones especializados o con requerimientos
+ecológicos específicos. En conjunto, este análisis ofrece una visión
+integral sobre cómo las especies utilizan los distintos ambientes
+disponibles y permite inferir la importancia relativa de cada cobertura
+en la conservación de la diversidad local.</p>
 </div>
 <div id="gremios-tróficos" class="section level2">
 <h2>Gremios tróficos</h2>
@@ -615,25 +686,30 @@ animales). La caracterización trófica, se realizó en base a los
 resultados de abundancia relativa, para facilitar la cuantificación de
 la misma.</p>
 </div>
+</div>
+<div id="especies-de-importancia-económica-y-cultural" class="section level1">
+<h1>Especies de importancia económica y cultural</h1>
 <div id="especies-sensibles" class="section level2">
 <h2>Especies sensibles</h2>
-<p>Posterior a esto, se evaluaron las especies sensibles presentes en
-las CNAS del proyecto. Estas especies se reconocen como todas aquellas
-que, debido a alguna característica ecológica o poblacional, son más
-perceptivas al cambio ambiental que producen las actividades antrópicas.
-A partir de esto, fueron analizadas aquellas especies que han sido
-catalogadas como amenazadas de extinción, para lo cual se tuvieron en
-cuenta las categorías establecidas a nivel global por la Unión
-Internacional para la Conservación de la Naturaleza UICN (2021), y a
-nivel nacional por la Resolución 0126 de 2024 del MADS. Así mismo, se
-analizaron aquellas especies que presentan restricción en su comercio a
-través de la lista de la Convención sobre el Comercio Internacional de
-Especies Amenazadas de Fauna y Flora Silvestres (CITES), aquellas que
-tuvieran rangos de distribución muy pequeños o restringidos (endémicas)
-y las especies con algún patrón de migración dentro del territorio, para
-lo cual fue evaluado el Plan Nacional de especies Migratorias de Naranjo
-y Amaya y Naranjo et al. y la Guía de las especies migratorias de la
-biodiversidad en Colombia de Amaya-Espinel y Zapata.</p>
+<p>Posterior a esto, se evaluaron las especies sensibles, Estas especies
+se reconocen como todas aquellas que, debido a alguna característica
+ecológica o poblacional, son más perceptivas al cambio ambiental que
+producen las actividades antrópicas. A partir de esto, fueron analizadas
+aquellas especies que han sido catalogadas como amenazadas de extinción,
+para lo cual se tuvieron en cuenta las categorías establecidas a nivel
+global por la Unión Internacional para la Conservación de la Naturaleza
+UICN (2021), y a nivel nacional por la Resolución 0126 de 2024 del MADS.
+Así mismo, se analizaron aquellas especies que presentan restricción en
+su comercio a través de la lista de la Convención sobre el Comercio
+Internacional de Especies Amenazadas de Fauna y Flora Silvestres
+(CITES), aquellas que tuvieran rangos de distribución muy pequeños o
+restringidos (endémicas) y las especies con algún patrón de migración
+dentro del territorio, para lo cual fue evaluado el Plan Nacional de
+especies Migratorias de Naranjo y Amaya y Naranjo et al. y la Guía de
+las especies migratorias de la biodiversidad en Colombia de
+Amaya-Espinel y Zapata.</p>
+<div id="uicn" class="section level3">
+<h3>UICN</h3>
 <p>Siguiendo los criterios establecidos por la Unión Internacional para
 la Conservación de la naturaleza (IUCN), las categorías de amenaza han
 sido definidas como:</p>
@@ -647,6 +723,9 @@ cercano.</p>
 <p>Vulnerables (VU): un taxón está en la categoría de VU, cuando la
 mejor evidencia disponible indica que enfrenta un moderado riesgo de
 extinción o deterioro poblacional a mediano plazo.</p>
+</div>
+<div id="cites" class="section level3">
+<h3>CITES</h3>
 <p>Las especies amparadas por la Convención sobre el Comercio
 Internacional de Especies Amenazadas de Fauna y Flora Silvestres
 (CITES), se encuentran incluidas en tres apéndices según el grado de
@@ -662,6 +741,7 @@ país, el cual ha solicitado la asistencia de otras partes de las CITES
 para controlar su comercio.</p>
 <p>Los análisis y gráficos se realizaron con los softwares libres R
 Studio, Python y una hoja de cálculo de Microsoft Excel.</p>
+</div>
 </div>
 </div>
 
