@@ -99,3 +99,17 @@ system("git push")                          # Sube los cambios a GitHub
 # ============================================================
 system("git status")
 
+#----------------------------------------------------Iniciar Python en R studio--------------------------
+
+system("python --version")
+
+#Instalar paquete para ejecutar python en R studio
+#install.packages("reticulate")
+library(reticulate)
+
+py_config()
+
+#---------------------------------------------------------------------------------------------------------
+
+
+
