@@ -17,7 +17,7 @@ Este código corresponde a u análisis estadístico de la diversidad par aves y 
 
 El proyecto sera guardado en un repositorio de github para poder darle trazabilidad al mismo y compartirlo libremente
 
-```{github}
+```{r}
 # ============================================================
 # 🔗 CONFIGURAR GIT Y GITHUB DESDE RSTUDIO
 # ============================================================
@@ -618,6 +618,131 @@ print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bord
 
 ## Figura de Ordenes_Familias
 La figura muestra la representatividad taxonómica de las especies registradas en el área de estudio, organizadas según su distribución por órdenes y familias. Se observa la variación en el número de especies por familia dentro de cada orden, lo que permite identificar los grupos con mayor riqueza y contribución a la diversidad total. Este tipo de representación facilita visualizar la estructura taxonómica de la comunidad y resalta los patrones de dominancia o equidad entre familias, proporcionando una base para analizar la composición y diversidad biológica del área evaluada.
+
+```{r}
+# --- Instalar e importar reticulate ---
+#install.packages("reticulate")
+library(reticulate)
+
+# --- (Opcional) Configurar el entorno Python si no lo tienes ---
+# use_python("/ruta/a/tu/python", required = TRUE)
+# o usa el entorno por defecto de RStudio
+
+# --- Instalar dependencias de Python si hace falta ---
+py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
+
+# --- Ejecutar código Python ---
+
+py_run_string("
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+
+# --- Copiar dataframe base ---
+df = Registros.copy()
+
+# --- Si tu DataFrame ya está cargado en Python como df, úsalo directamente ---
+tabla = df.copy()
+
+# --- Limpiar nombres de columnas por seguridad ---
+tabla.columns = tabla.columns.str.strip()
+
+# Limpiar nombres de familia
+tabla['Familia'] = tabla['Familia'].astype(str).str.strip()
+
+# Eliminar filas con nombres de familia vacíos o 'nan'
+tabla = tabla[tabla['Familia'].notna()]
+tabla = tabla[tabla['Familia'] != '']
+
+
+# --- Asegurar que las columnas requeridas existen ---
+tabla = tabla.dropna(subset=['Orden', 'Familia', 'Especie'])
+
+# --- Crear tabla dinámica: número de especies únicas por Orden y Familia ---
+pivot_df = (
+    tabla.groupby(['Orden', 'Familia'])['Especie']
+    .nunique()
+    .reset_index()
+    .pivot(index='Orden', columns='Familia', values='Especie')
+    .fillna(0)
+    .astype(int)
+)
+
+# --- Exportar tabla a Excel ---
+excel_path = 'Riqueza_Orden_Familia.xlsx'
+pivot_df.to_excel(excel_path, sheet_name='Tabla_dinamica')
+
+# --- Crear gráfico de barras apiladas horizontal ---
+sns.set(style='whitegrid')
+fig, ax = plt.subplots(figsize=(12, 8))
+
+pivot_df.plot(
+    kind='barh',
+    stacked=True,
+    colormap='tab20',
+    edgecolor='black',
+    ax=ax
+)
+
+# --- Añadir etiquetas dentro de las barras ---
+for container in ax.containers:
+    # etiquetas solo si el valor del segmento > 0
+    labels = [f'{w.get_width():.0f}' if w.get_width() > 0 else '' for w in container]
+    ax.bar_label(
+        container,
+        labels=labels,
+        label_type='center',     # posición centrada dentro del bloque
+        fontsize=7,
+        color='black',
+        weight='bold'
+    )
+
+# --- Etiquetas y formato ---
+ax.set_title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
+ax.set_xlabel('Número de especies')
+ax.set_ylabel('Orden')
+# --- Ajuste de la leyenda para ocupar todo el alto ---
+ax.legend(
+    title='Familia',
+    bbox_to_anchor=(1.02, 0, 0.25, 1),  # [x0, y0, ancho, alto] → ocupa toda la altura
+    loc='upper left',
+    ncol=2,                             # número de columnas
+    fontsize=8,
+    title_fontsize=9,
+    frameon=False,
+    mode='expand',                      # distribuye las entradas verticalmente en todo el alto
+    borderaxespad=0.0,
+    columnspacing=1.2,
+    labelspacing=0.8
+)
+
+plt.tight_layout()
+
+# --- Guardar el gráfico como imagen temporal ---
+img_path = 'Grafico_Riqueza_Orden_Familia.png'
+plt.savefig(img_path, dpi=300, bbox_inches='tight')
+plt.close()
+
+# --- Insertar el gráfico en el Excel ---
+wb = load_workbook(excel_path)
+ws = wb.create_sheet('Grafico')
+
+# Insertar la imagen
+img = Image(img_path)
+ws.add_image(img, 'A1')
+
+# Guardar el Excel final
+wb.save(excel_path)
+
+print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
+")
+
+```
+
+
+
 
 ## Curvas de acumulación de especies
 En general, para evaluar la representatividad de los muestreos, se empleó la curva de acumulación de especies para cada una de las coberturas muestreadas, que representa el número de especies acumulado en el inventario frente al esfuerzo de muestreo realizado. De esta manera, la curva de acumulación es la representación gráfica de la cantidad de las especies que van apareciendo en el muestreo. Los cálculos se realizaron utilizando R Studio y Python, disponible en línea. Para determinar la eficiencia de estos muestreos, se utilizaron los estimadores como ACE, Chao de primer orden, Jacknife 1 o Bootstrap, los cuales arrojan resultados más precisos al estimar la riqueza de ensamblajes con gran cantidad de especies “raras".

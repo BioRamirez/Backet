@@ -501,3 +501,55 @@ print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bord
 ")
 
 
+#------------------Figura de Ordenes familias---------------
+
+# --- Instalar e importar reticulate ---
+install.packages("reticulate")
+library(reticulate)
+
+# --- (Opcional) Configurar el entorno Python si no lo tienes ---
+# use_python("/ruta/a/tu/python", required = TRUE)
+# o usa el entorno por defecto de RStudio
+
+# --- Instalar dependencias de Python si hace falta ---
+py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
+
+# --- Ejecutar código Python ---
+py_run_string("
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# --- Leer el archivo Excel ---
+tabla = pd.read_excel('especies.xlsx')
+
+# --- Transformar a formato largo ---
+tabla_larga = tabla.melt(id_vars='Orden', var_name='Familia', value_name='Num_especies')
+
+# --- Filtrar ceros ---
+tabla_larga = tabla_larga[tabla_larga['Num_especies'] > 0]
+
+# --- Crear gráfico ---
+plt.figure(figsize=(10,6))
+sns.set(style='whitegrid')
+
+# --- Gráfico de barras apiladas ---
+tabla_pivot = tabla_larga.pivot(index='Orden', columns='Familia', values='Num_especies').fillna(0)
+tabla_pivot.plot(kind='bar', stacked=True, colormap='tab20', edgecolor='black', figsize=(12,7))
+
+# --- Etiquetas numéricas ---
+for i, (idx, row) in enumerate(tabla_pivot.iterrows()):
+    cumulative = 0
+    for familia, valor in row.items():
+        if valor > 0:
+            plt.text(i, cumulative + valor/2, str(int(valor)), ha='center', va='center', fontsize=9)
+            cumulative += valor
+
+# --- Títulos y ejes ---
+plt.title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
+plt.xlabel('Orden')
+plt.ylabel('Numero de especies')  # sin acento para evitar error
+plt.legend(title='Familia', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.tight_layout()
+plt.show()
+")
