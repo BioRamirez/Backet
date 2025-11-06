@@ -85,6 +85,11 @@ system("git remote -v")
 # ============================================================
 # 9️⃣ SUBIR CAMBIOS FUTUROS
 # ============================================================
+system('git config --global --list')
+user.name=BioRamirez
+user.email=bioramirezjuan@gmail.com
+
+system('git config --global --list')
 
 # Después de modificar tu proyecto, ejecuta:
 system("git add .")                         # Añade todos los archivos
