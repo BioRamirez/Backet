@@ -515,41 +515,124 @@ library(reticulate)
 py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
 
 # --- Ejecutar código Python ---
+
 py_run_string("
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
 
-# --- Leer el archivo Excel ---
-tabla = pd.read_excel('especies.xlsx')
+# --- Copiar dataframe base ---
+df = Registros.copy()
 
-# --- Transformar a formato largo ---
-tabla_larga = tabla.melt(id_vars='Orden', var_name='Familia', value_name='Num_especies')
+# --- Si tu DataFrame ya está cargado en Python como df, úsalo directamente ---
+tabla = df.copy()
 
-# --- Filtrar ceros ---
-tabla_larga = tabla_larga[tabla_larga['Num_especies'] > 0]
+# --- Limpiar nombres de columnas por seguridad ---
+tabla.columns = tabla.columns.str.strip()
 
-# --- Crear gráfico ---
-plt.figure(figsize=(10,6))
+# Limpiar nombres de familia
+tabla['Familia'] = tabla['Familia'].astype(str).str.strip()
+
+# Eliminar filas con nombres de familia vacíos o 'nan'
+tabla = tabla[tabla['Familia'].notna()]
+tabla = tabla[tabla['Familia'] != '']
+
+
+# --- Asegurar que las columnas requeridas existen ---
+tabla = tabla.dropna(subset=['Orden', 'Familia', 'Especie'])
+
+# --- Crear tabla dinámica: número de especies únicas por Orden y Familia ---
+pivot_df = (
+    tabla.groupby(['Orden', 'Familia'])['Especie']
+    .nunique()
+    .reset_index()
+    .pivot(index='Orden', columns='Familia', values='Especie')
+    .fillna(0)
+    .astype(int)
+)
+
+# --- Exportar tabla a Excel ---
+excel_path = 'Riqueza_Orden_Familia.xlsx'
+pivot_df.to_excel(excel_path, sheet_name='Tabla_dinamica')
+
+# --- Crear gráfico de barras apiladas horizontal ---
 sns.set(style='whitegrid')
+fig, ax = plt.subplots(figsize=(12, 8))
 
-# --- Gráfico de barras apiladas ---
-tabla_pivot = tabla_larga.pivot(index='Orden', columns='Familia', values='Num_especies').fillna(0)
-tabla_pivot.plot(kind='bar', stacked=True, colormap='tab20', edgecolor='black', figsize=(12,7))
+pivot_df.plot(
+    kind='barh',
+    stacked=True,
+    colormap='tab20',
+    edgecolor='black',
+    ax=ax
+)
 
-# --- Etiquetas numéricas ---
-for i, (idx, row) in enumerate(tabla_pivot.iterrows()):
-    cumulative = 0
-    for familia, valor in row.items():
-        if valor > 0:
-            plt.text(i, cumulative + valor/2, str(int(valor)), ha='center', va='center', fontsize=9)
-            cumulative += valor
+# --- Añadir etiquetas dentro de las barras ---
+for container in ax.containers:
+    # etiquetas solo si el valor del segmento > 0
+    labels = [f'{w.get_width():.0f}' if w.get_width() > 0 else '' for w in container]
+    ax.bar_label(
+        container,
+        labels=labels,
+        label_type='center',     # posición centrada dentro del bloque
+        fontsize=7,
+        color='black',
+        weight='bold'
+    )
 
-# --- Títulos y ejes ---
-plt.title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
-plt.xlabel('Orden')
-plt.ylabel('Numero de especies')  # sin acento para evitar error
-plt.legend(title='Familia', bbox_to_anchor=(1.05, 1), loc='upper left')
+# --- Etiquetas y formato ---
+ax.set_title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
+ax.set_xlabel('Número de especies')
+ax.set_ylabel('Orden')
+# --- Ajuste de la leyenda para ocupar todo el alto ---
+ax.legend(
+    title='Familia',
+    bbox_to_anchor=(1.02, 0, 0.25, 1),  # [x0, y0, ancho, alto] → ocupa toda la altura
+    loc='upper left',
+    ncol=2,                             # número de columnas
+    fontsize=8,
+    title_fontsize=9,
+    frameon=False,
+    mode='expand',                      # distribuye las entradas verticalmente en todo el alto
+    borderaxespad=0.0,
+    columnspacing=1.2,
+    labelspacing=0.8
+)
+
 plt.tight_layout()
-plt.show()
+
+# --- Guardar el gráfico como imagen temporal ---
+img_path = 'Grafico_Riqueza_Orden_Familia.png'
+plt.savefig(img_path, dpi=300, bbox_inches='tight')
+plt.close()
+
+# --- Insertar el gráfico en el Excel ---
+wb = load_workbook(excel_path)
+ws = wb.create_sheet('Grafico')
+
+# Insertar la imagen
+img = Image(img_path)
+ws.add_image(img, 'A1')
+
+# Guardar el Excel final
+wb.save(excel_path)
+
+print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 ")
+
+
+
+#-----------------------------Curva de acumulacion de especies----------------------
+
+
+
+
+
+
+
+
+
+
+

@@ -11,11 +11,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduccion
 
-Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte del Proyecto de Ordenación Forestal del mismo, el siguiente código integra Python desde R Studio para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.
+Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte de una prestacion de servicios profesionales en Biologia (Fauna), el siguiente código integra Python desde R Studio para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.
 
 ## Crear repositorio en GitHub para guardar el proyecto
 
 El proyecto sera guardado en un repositorio de github para poder darle trazabilidad al mismo y compartirlo libremente
+
 
 
 # Analisis de datos

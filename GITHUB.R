@@ -3,7 +3,7 @@
 # ============================================================
 
 # 1️⃣ Instalar e importar el paquete necesario
-install.packages("usethis")
+#install.packages("usethis")
 library(usethis)
 
 # ------------------------------------------------------------
