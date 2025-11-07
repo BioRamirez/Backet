@@ -792,6 +792,9 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 
 ```
 
+```{r, echo=FALSE, fig.cap="Gráfico generado"}
+knitr::include_graphics("Grafico_Riqueza_Orden_Familia.png")
+```
 
 
 
