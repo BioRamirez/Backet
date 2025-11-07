@@ -792,22 +792,6 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 
 ```
 
-```{r}
-py_run_string("
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-
-img_path = r'D:/CORPONOR 2025/Backet/Grafico_Riqueza_Orden_Familia.png'
-img = mpimg.imread(img_path)
-
-plt.imshow(img)
-plt.axis('off')
-plt.title('Grafico generado')
-plt.show()
-")
-```
 
 
 
