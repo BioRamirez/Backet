@@ -444,16 +444,20 @@ View(esfuerzo_unico)
 
 
 ```{r}
+
 library(readxl)
 library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
 
 # Leer el archivo Excel
 tabla <- read_excel("Esfuerzo_Muestreo.xlsx")
 
-#"D:\CORPONOR 2025\Backet\Esfuerzo_Muestreo.xlsx"
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo Esfuerzo_Muestreo.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
 
-# Mostrar tabla completa en el documento
-kable(tabla, caption = "Vista del archivo Esfuerzo_Muestreo.xlsx")
+
 ```
 
 ## Tabla general grupo taxonomico
@@ -678,16 +682,20 @@ print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bord
 ```
 
 ```{r}
+
 library(readxl)
 library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
 
 # Leer el archivo Excel
 tabla <- read_excel("tabla_composicion_taxonomica.xlsx")
 
-#"D:\CORPONOR 2025\Backet\tabla_composicion_taxonomica.xlsx"
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo tabla_composicion_taxonomica.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
 
-# Mostrar tabla completa en el documento
-kable(tabla, caption = "Vista del archivo tabla_composicion_taxonomica.xlsx")
+
 ```
 
 
@@ -821,18 +829,23 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 ```{r}
 library(readxl)
 library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
 
 # Leer el archivo Excel
 tabla <- read_excel("Riqueza_Orden_Familia.xlsx")
 
-# Mostrar tabla completa en el documento
-kable(tabla, caption = "Vista del archivo Riqueza_Orden_Familia.xlsx")
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo Riqueza_Orden_Familia.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
+
 ```
 
 
 ```{r, echo=FALSE, fig.cap="Gráfico generado"}
 knitr::include_graphics("Grafico_Riqueza_Orden_Familia.png")
 ```
+
 
 
 

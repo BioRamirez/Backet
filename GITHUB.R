@@ -64,7 +64,7 @@ system("git --version")   # o desde la terminal de RStudio: git --version
 
 # Esto creará automáticamente un repositorio en GitHub
 # y lo enlazará con tu proyecto local
-usethis::use_github()
+# usethis::use_github()
 
 # 🔸 Se hará un commit inicial y se subirá el código a GitHub.
 # 🔸 Se abrirá el repositorio en tu navegador.

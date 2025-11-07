@@ -31,18 +31,24 @@ Registros = pd.read_excel('D:/CORPONOR 2025/FOTOS/POF_ZULIA_2025_BD_AVES_MAMIFER
 print(Registros.head())
 ")
 
+
+py_run_string("# Mostrar las primeras filas
+print(Registros.info())
+")
+
 # También puedes traer el DataFrame a R si lo necesitas:
 Registros <- py$Registros
 View(Registros)
 
 #--------------## Esfuerzo de Muestreo------------------------------
 
+# En primera instancia se revisa el contenido de las columas a utilizar en el analisis
+
 py_run_string("# Mostrar las primeras filas
 print(Registros.head())
 ")
 
 py_run_string("print(Registros.columns)")
-
 
 py_run_string("print(Registros['METODOLOGIA'].unique())")
 
@@ -55,9 +61,9 @@ py_run_string("print(Registros['Gremio'].unique())")
 #--------------Crear tabla de esfuerzo de muestreo---------------------------
 
 library(reticulate)
-py_install(c("pandas", "numpy"))
+# py_install(c("pandas", "numpy"))
 
-py_install(c("tabulate", "openpyxl"))
+# py_install(c("tabulate", "openpyxl"))
 
 
 
@@ -158,9 +164,9 @@ orden_indices = [
 tabla_melt['Indice'] = pd.Categorical(tabla_melt['Indice'], categories=orden_indices, ordered=True)
 
 # --- Renombrar columna ---
-tabla_melt = tabla_melt.rename(columns={'METODO': 'Metodología'})
+tabla_melt = tabla_melt.rename(columns={'METODO': 'Metodologia'})
 
-# --- Orden personalizado de metodologías ---
+# --- Orden personalizado de metodologias ---
 orden_metodologia = [
     'Transecto',
     'Punto de observacion',
@@ -169,9 +175,9 @@ orden_metodologia = [
     'Informacion Secundaria'
 ]
 
-tabla_melt['Metodología'] = pd.Categorical(tabla_melt['Metodología'], categories=orden_metodologia, ordered=True)
+tabla_melt['Metodologia'] = pd.Categorical(tabla_melt['Metodologia'], categories=orden_metodologia, ordered=True)
 
-# --- Orden personalizado de metodologías ---
+# --- Orden personalizado de Metodologias ---
 orden_COBERTURA = [
     'Bgr',
     'Bfvs',
@@ -184,7 +190,7 @@ tabla_melt['COBERTURA'] = pd.Categorical(tabla_melt['COBERTURA'], categories=ord
 
 # --- Pivotar ---
 tabla_pivot = tabla_melt.pivot_table(
-    index=['Metodología', 'Indice'],
+    index=['Metodologia', 'Indice'],
     columns='COBERTURA',
     values='Valor',
     aggfunc='first'
@@ -310,7 +316,7 @@ for col in ['CLASE', 'Orden', 'Familia', 'Genero', 'Epiteto', 'N. comun', 'Gremi
 # --- Crear nombre científico completo ---
 df['Especie_cientifica'] = df['Genero'] + ' ' + df['Epiteto']
 
-# --- Diccionario de abreviaciones de metodología ---
+# --- Diccionario de abreviaciones de Metodologia ---
 abreviaciones_metodo = {
     'Auditivo': 'Aud',
     'Fotografia': 'Fot',
@@ -504,15 +510,12 @@ print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bord
 #------------------Figura de Ordenes familias---------------
 
 # --- Instalar e importar reticulate ---
-install.packages("reticulate")
+# install.packages("reticulate")
 library(reticulate)
 
-# --- (Opcional) Configurar el entorno Python si no lo tienes ---
-# use_python("/ruta/a/tu/python", required = TRUE)
-# o usa el entorno por defecto de RStudio
 
 # --- Instalar dependencias de Python si hace falta ---
-py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
+# py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
 
 # --- Ejecutar código Python ---
 
@@ -621,6 +624,13 @@ wb.save(excel_path)
 
 print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 ")
+
+#--------Ver Figuras----------------
+
+#```{r, echo=FALSE, fig.cap="Gráfico generado"}
+#knitr::include_graphics("Grafico_Riqueza_Orden_Familia.png")
+#```
+
 
 
 
