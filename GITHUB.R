@@ -24,7 +24,7 @@ system("git --version")   # o desde la terminal de RStudio: git --version
 # ============================================================
 
 # Esto abrirá tu navegador para crear un token con permisos "repo"
-usethis::create_github_token(scopes = c("repo"))
+#usethis::create_github_token(scopes = c("repo"))
 
 # 👉 En GitHub, copia el token (algo como: ghp_sD7xKfLZtPq6...)
 
@@ -33,7 +33,7 @@ usethis::create_github_token(scopes = c("repo"))
 # ============================================================
 
 # Esto abrirá tu archivo .Renviron
-usethis::edit_r_environ()
+#usethis::edit_r_environ()
 
 # 💡 En el archivo que se abre, pega una línea como esta (sin comillas):
 # GITHUB_PAT=ghp_tuTokenLargoQueCopiasteDeGitHub
@@ -42,7 +42,7 @@ usethis::edit_r_environ()
 # ============================================================
 # 5️⃣ VERIFICAR QUE R RECONOZCA TU TOKEN
 # ============================================================
-Sys.getenv("GITHUB_PAT")
+#Sys.getenv("GITHUB_PAT")
 # ✅ Debe mostrar tu token (o al menos empezar con "ghp_").
 # Si devuelve "", vuelve a editar el .Renviron y revisa la sintaxis.
 
@@ -53,11 +53,10 @@ Sys.getenv("GITHUB_PAT")
 
 # 📁 Asegúrate de estar dentro del proyecto que deseas conectar
 # Si no tienes un proyecto abierto, crea uno nuevo en RStudio (File > New Project)
-usethis::use_git()
+# usethis::use_git()
 
 # 👉 Esto crea la carpeta .git y un archivo .gitignore
 # RStudio puede pedirte reiniciar; hazlo.
-
 
 # ============================================================
 # 7️⃣ CREAR Y VINCULAR REPOSITORIO EN GITHUB
@@ -85,9 +84,6 @@ system("git remote -v")
 # ============================================================
 # 9️⃣ SUBIR CAMBIOS FUTUROS
 # ============================================================
-system('git config --global --list')
-user.name=BioRamirez
-user.email=bioramirezjuan@gmail.com
 
 system('git config --global --list')
 
