@@ -25,11 +25,7 @@ git init
 
 # 7️⃣ Conectar con tu repositorio de GitHub (reemplaza el enlace con el tuyo)
 git remote add origin https://github.com/BioRamirez/Backet
+git remote -v
 
-# 8️⃣ Primer commit y push
-git add .
-git commit -m "Primer commit del proyecto"
-git branch -M main
-git push -u origin main
 
-Write-Host "✅ Configuración inicial completada con éxito."
+print("✅ Configuración inicial completada con éxito.") 
