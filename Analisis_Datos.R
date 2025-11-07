@@ -4,10 +4,10 @@
 library(reticulate)
 
 # Crea un entorno virtual permanente llamado "r-reticulate"
-virtualenv_create("C:/Users/Ramirez Juan/.python_envs/r-reticulate")
+# virtualenv_create("C:/Users/Ramirez Juan/.python_envs/r-reticulate")
 
 # Usar este entorno como el principal de reticulate
-use_virtualenv("C:/Users/Ramirez Juan/.python_envs/r-reticulate", required = TRUE)
+# use_virtualenv("C:/Users/Ramirez Juan/.python_envs/r-reticulate", required = TRUE)
 
 # Instala los paquetes básicos de ciencia de datos
 py_install(c("pandas", "numpy", "matplotlib", "tabulate", "openpyxl"))
@@ -149,7 +149,7 @@ tabla_melt = pd.melt(
 
 # --- Cambiar nombres de los índices ---
 tabla_melt['Indice'] = tabla_melt['Indice'].replace({
-    'INDIVIDUOS': 'Número de individuos',
+    'INDIVIDUOS': 'Numero de individuos',
     'Esfuerzo_horas': 'Esfuerzo captura (horas-hombre)',
     'Exito_captura': 'Éxito de captura (individuos/horas-hombre)'
 })
@@ -157,7 +157,7 @@ tabla_melt['Indice'] = tabla_melt['Indice'].replace({
 
 # --- Orden lógico de los índices ---
 orden_indices = [
-    'Número de individuos',
+    'Numero de individuos',
     'Esfuerzo captura (horas-hombre)',
     'Éxito de captura (individuos/horas-hombre)'
 ]
@@ -546,7 +546,7 @@ tabla = tabla[tabla['Familia'] != '']
 # --- Asegurar que las columnas requeridas existen ---
 tabla = tabla.dropna(subset=['Orden', 'Familia', 'Especie'])
 
-# --- Crear tabla dinámica: número de especies únicas por Orden y Familia ---
+# --- Crear tabla dinámica: Numero de especies únicas por Orden y Familia ---
 pivot_df = (
     tabla.groupby(['Orden', 'Familia'])['Especie']
     .nunique()
@@ -587,14 +587,14 @@ for container in ax.containers:
 
 # --- Etiquetas y formato ---
 ax.set_title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
-ax.set_xlabel('Número de especies')
+ax.set_xlabel('Numero de especies')
 ax.set_ylabel('Orden')
 # --- Ajuste de la leyenda para ocupar todo el alto ---
 ax.legend(
     title='Familia',
     bbox_to_anchor=(1.02, 0, 0.25, 1),  # [x0, y0, ancho, alto] → ocupa toda la altura
     loc='upper left',
-    ncol=2,                             # número de columnas
+    ncol=2,                             # Numero de columnas
     fontsize=8,
     title_fontsize=9,
     frameon=False,
@@ -636,13 +636,154 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 
 #-----------------------------Curva de acumulacion de especies----------------------
 
+# Ver las columnas del data frame
+py_run_string("# Mostrar las primeras filas
+print(Registros.info())
+")
+
+# Ver las fechas 
+
+
+py_run_string("print(sorted(Registros['FECHA'].unique()))")
+
+# Dividir los fechas en intervalos semanales
+py_run_string("
+import pandas as pd
+
+# Asegurar que la columna sea datetime
+Registros['FECHA'] = pd.to_datetime(Registros['FECHA'])
+
+# Crear rangos semanales
+Registros['RANGO_FECHA'] = Registros['FECHA'].dt.to_period('W')
+
+# Ver los grupos
+print(Registros.groupby('RANGO_FECHA').size())
+")
+
+py_run_string("print(Registros['ESPECIE'].unique())")
+
+py_run_string("print(Registros['INDIVIDUOS'].unique())")
 
 
 
+#-----------------Curva de acumulaciom------------
+#-------------Crear tabal dinamica para la entrada de los datos--------
+
+py_run_string("
+import pandas as pd
+import openpyxl
+
+# --- Paso 1. Asegurar formato de fecha ---
+Registros['FECHA'] = pd.to_datetime(Registros['FECHA'])
+
+# --- Paso 2. Crear rangos semanales ---
+Registros['RANGO_FECHA'] = Registros['FECHA'].dt.to_period('W')
+
+# --- Paso 3. Crear tabla de abundancia ---
+# Agrupamos por especie y rango, sumando el número de individuos
+tabla_abundancia = (
+    Registros
+    .groupby(['ESPECIE', 'RANGO_FECHA'])['INDIVIDUOS']
+    .sum()
+    .unstack(fill_value=0)   # Filas = especies, columnas = rangos
+)
+
+# --- Paso 4. Exportar a Excel ---
+ruta_salida = 'Tabla_Abundancia_Semanal.xlsx'
+with pd.ExcelWriter(ruta_salida, engine='openpyxl') as writer:
+    tabla_abundancia.to_excel(writer, sheet_name='Abundancia_Semanal')
+
+print('✅ Tabla de abundancia creada y guardada en:', ruta_salida)
+print('\\nVista previa:')
+print(tabla_abundancia.head())
+")
+#-----------Dar formato------------
 
 
+py_run_string("
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+
+# --- Nombre del archivo a formatear ---
+output_file = 'Tabla_Abundancia_Semanal.xlsx'
+
+# --- Cargar el archivo ---
+wb = load_workbook(output_file)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+# --- Bordes finos para toda la tabla ---
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        # Reemplazar vacíos o None por guion
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        # Aplicar formato general
+        cell.border = thin_border
+        cell.alignment = center_align
+
+# --- Aplicar formato al encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas automáticamente ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        try:
+            if cell.value:
+                length = len(str(cell.value))
+                if length > max_length:
+                    max_length = length
+        except:
+            pass
+    adjusted_width = max_length + 3
+    ws.column_dimensions[column].width = adjusted_width
+
+# --- Ajustar altura de filas automáticamente ---
+for row in ws.iter_rows():
+    max_height = 15
+    for cell in row:
+        if cell.value:
+            lines = str(cell.value).count('\\n') + 1
+            if lines > 1:
+                max_height = 15 * lines
+    ws.row_dimensions[cell.row].height = max_height
+
+# --- Guardar cambios ---
+wb.save(output_file)
+print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bordes finos y guiones en vacíos.')
+")
+
+#--------Realizar el analisis tipo Estimate y generar tablas con los estimadores-------
 
 
+# Ver las columnas del data frame
+py_run_string("# Mostrar las primeras filas
+print(tabla_abundancia.info())
+")
+
+# También puedes traer el DataFrame a R si lo necesitas:
+tabla_abundancia <- py$tabla_abundancia
+View(tabla_abundancia)
+print(tabla_abundancia)
+str(tabla_abundancia)
 
 
 
