@@ -12,29 +12,30 @@ def ejecutar_comando(comando):
         )
         print(resultado.stdout)
     except subprocess.CalledProcessError as e:
-        print(f"⚠️ Error ejecutando comando git: {e}")
+        print(f"⚠️ Error ejecutando comando: {comando}")
         print(e.stderr)
 
 def auto_commit():
-    """Agrega, commitea y sube los cambios automáticamente."""
-    # 1️⃣ Mensaje con fecha y hora
+    """Agrega, commitea y sube los cambios automáticamente al repositorio."""
+    
+    # 🕒 1️⃣ Generar mensaje con fecha y hora
     fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     mensaje = f"Auto-commit: actualización {fecha}"
 
-    print("🔍 Verificando cambios...")
+    print("🔍 Verificando estado del repositorio...")
     ejecutar_comando(["git", "status"])
 
-    print("➕ Agregando cambios al área de preparación...")
+    print("➕ Agregando todos los cambios al área de preparación...")
     ejecutar_comando(["git", "add", "."])
 
     print(f"💾 Realizando commit con mensaje: '{mensaje}'")
     ejecutar_comando(["git", "commit", "-m", mensaje])
 
-    print("🚀 Subiendo cambios al repositorio remoto...")
-    ejecutar_comando(["git", "push", "origin", "main"])
+    print("🚀 Subiendo cambios al repositorio remoto (rama master)...")
+    ejecutar_comando(["git", "push", "origin", "master"])
 
     print("✅ Cambios subidos correctamente a GitHub.")
 
+# Punto de entrada del script
 if __name__ == "__main__":
     auto_commit()
-
