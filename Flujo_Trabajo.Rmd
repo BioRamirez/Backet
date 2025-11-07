@@ -792,6 +792,24 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 
 ```
 
+```{r}
+py_run_string("
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+
+img_path = r'D:/CORPONOR 2025/Backet/Grafico_Riqueza_Orden_Familia.png'
+img = mpimg.imread(img_path)
+
+plt.imshow(img)
+plt.axis('off')
+plt.title('Grafico generado')
+plt.show()
+")
+```
+
+
 
 ## Curvas de acumulación de especies
 En general, para evaluar la representatividad de los muestreos, se empleó la curva de acumulación de especies para cada una de las coberturas muestreadas, que representa el número de especies acumulado en el inventario frente al esfuerzo de muestreo realizado. De esta manera, la curva de acumulación es la representación gráfica de la cantidad de las especies que van apareciendo en el muestreo. Los cálculos se realizaron utilizando R Studio y Python, disponible en línea. Para determinar la eficiencia de estos muestreos, se utilizaron los estimadores como ACE, Chao de primer orden, Jacknife 1 o Bootstrap, los cuales arrojan resultados más precisos al estimar la riqueza de ensamblajes con gran cantidad de especies “raras".
