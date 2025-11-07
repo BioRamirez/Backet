@@ -681,6 +681,8 @@ library(reticulate)
 # --- Ejecutar código Python ---
 
 py_run_string("
+import matplotlib
+matplotlib.use('Agg')
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -689,6 +691,7 @@ from openpyxl.drawing.image import Image
 
 # --- Copiar dataframe base ---
 df = Registros.copy()
+
 
 # --- Si tu DataFrame ya está cargado en Python como df, úsalo directamente ---
 tabla = df.copy()
