@@ -7531,12 +7531,12 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="Introduccion">Introduccion<a class="anchor-link" href="#Introduccion">¶</a></h1><p>Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte de una prestacion de servicios profesionales en Biologia (Fauna), el siguiente código integra Python desde R Studio para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.</p>
+<h1 id="Introduccion">Introduccion<a class="anchor-link" href="#Introduccion">¶</a></h1><p>Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte de una prestacion de servicios profesionales en Biologia (Fauna), el siguiente código integra Python desde visual code  para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.</p>
 <h2 id="Crear-repositorio-en-GitHub-para-guardar-el-proyecto">Crear repositorio en GitHub para guardar el proyecto<a class="anchor-link" href="#Crear-repositorio-en-GitHub-para-guardar-el-proyecto">¶</a></h2><p>El proyecto sera guardado en un repositorio de github para poder darle trazabilidad al mismo y compartirlo libremente</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=2f65f219">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a25ccde6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7544,20 +7544,57 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-python"><pre><span></span><span class="n">mport</span> <span class="n">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 
-<span class="c1"># Leer el archivo Excel</span>
-<span class="n">Registros</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">'D:/CORPONOR 2025/FOTOS/POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx'</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">ejecutar_comando</span><span class="p">(</span><span class="n">comando</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Ejecuta un comando del sistema y muestra la salida en consola."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">resultado</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">comando</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">resultado</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"⚠️ Error ejecutando comando git: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 
-<span class="c1"># Mostrar las primeras filas</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">Registros</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
-<span class="s2">")</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">auto_commit</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""Agrega, commitea y sube los cambios automáticamente."""</span>
+    <span class="c1"># 1️⃣ Mensaje con fecha y hora</span>
+    <span class="n">fecha</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S"</span><span class="p">)</span>
+    <span class="n">mensaje</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Auto-commit: actualización </span><span class="si">{</span><span class="n">fecha</span><span class="si">}</span><span class="s2">"</span>
 
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"🔍 Verificando cambios..."</span><span class="p">)</span>
+    <span class="n">ejecutar_comando</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">])</span>
 
-<span class="n">py_run_string</span><span class="p">(</span><span class="s2">"# Mostrar las primeras filas</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">Registros</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"➕ Agregando cambios al área de preparación..."</span><span class="p">)</span>
+    <span class="n">ejecutar_comando</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"add"</span><span class="p">,</span> <span class="s2">"."</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"💾 Realizando commit con mensaje: '</span><span class="si">{</span><span class="n">mensaje</span><span class="si">}</span><span class="s2">'"</span><span class="p">)</span>
+    <span class="n">ejecutar_comando</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"commit"</span><span class="p">,</span> <span class="s2">"-m"</span><span class="p">,</span> <span class="n">mensaje</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"🚀 Subiendo cambios al repositorio remoto..."</span><span class="p">)</span>
+    <span class="n">ejecutar_comando</span><span class="p">([</span><span class="s2">"git"</span><span class="p">,</span> <span class="s2">"push"</span><span class="p">,</span> <span class="s2">"origin"</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"✅ Cambios subidos correctamente a GitHub."</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">auto_commit</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8af7c9e5">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 </div>
 </div>
 </div>
