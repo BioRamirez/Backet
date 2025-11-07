@@ -443,6 +443,19 @@ View(esfuerzo_unico)
 ```
 
 
+```{r}
+library(readxl)
+library(knitr)
+
+# Leer el archivo Excel
+tabla <- read_excel("Esfuerzo_Muestreo.xlsx")
+
+#"D:\CORPONOR 2025\Backet\Esfuerzo_Muestreo.xlsx"
+
+# Mostrar tabla completa en el documento
+kable(tabla, caption = "Vista del archivo Esfuerzo_Muestreo.xlsx")
+```
+
 ## Tabla general grupo taxonomico
 La tabla presenta la composición taxonómica y ecológica de las especies registradas durante el muestreo, organizadas jerárquicamente por orden, familia y especie, e incluyendo el nombre común correspondiente. Para cada especie se indica su gremio trófico, lo que permite identificar los principales grupos funcionales presentes en el área de estudio y su papel dentro de la comunidad biológica. Asimismo, se especifican las coberturas o tipos de hábitat en las que fueron registradas, el valor de abundancia relativa o número de individuos observados, y el tipo de registro obtenido (observación directa, captura, fotografía, vocalización, entre otros). Esta información permite evaluar la diversidad, la estructura trófica y el grado de representatividad de las especies en las distintas coberturas evaluadas.
 
@@ -662,6 +675,19 @@ print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bord
 ")
 
 
+```
+
+```{r}
+library(readxl)
+library(knitr)
+
+# Leer el archivo Excel
+tabla <- read_excel("tabla_composicion_taxonomica.xlsx")
+
+#"D:\CORPONOR 2025\Backet\tabla_composicion_taxonomica.xlsx"
+
+# Mostrar tabla completa en el documento
+kable(tabla, caption = "Vista del archivo tabla_composicion_taxonomica.xlsx")
 ```
 
 
