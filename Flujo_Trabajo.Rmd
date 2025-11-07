@@ -792,6 +792,18 @@ print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
 
 ```
 
+```{r}
+library(readxl)
+library(knitr)
+
+# Leer el archivo Excel
+tabla <- read_excel("Riqueza_Orden_Familia.xlsx")
+
+# Mostrar tabla completa en el documento
+kable(tabla, caption = "Vista del archivo Riqueza_Orden_Familia.xlsx")
+```
+
+
 ```{r, echo=FALSE, fig.cap="Gráfico generado"}
 knitr::include_graphics("Grafico_Riqueza_Orden_Familia.png")
 ```
