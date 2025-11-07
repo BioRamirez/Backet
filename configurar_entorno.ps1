@@ -24,7 +24,7 @@ git config --global user.email "bioramirezjuan@gmail.com"
 git init
 
 # 7️⃣ Conectar con tu repositorio de GitHub (reemplaza el enlace con el tuyo)
-git remote add origin https://github.com/BioRamirez/Backet.git
+git remote add origin https://github.com/BioRamirez/Backet
 
 # 8️⃣ Primer commit y push
 git add .
