@@ -139,10 +139,10 @@ py_config()
 library(reticulate)
 
 # Crea un entorno virtual permanente llamado "r-reticulate"
-virtualenv_create("C:/Users/Ramirez Juan/.python_envs/r-reticulate")
+# virtualenv_create("C:/Users/Ramirez Juan/.python_envs/r-reticulate")
 
 # Usar este entorno como el principal de reticulate
-use_virtualenv("C:/Users/Ramirez Juan/.python_envs/r-reticulate", required = TRUE)
+# use_virtualenv("C:/Users/Ramirez Juan/.python_envs/r-reticulate", required = TRUE)
 
 # Instala los paquetes básicos de ciencia de datos
 py_install(c("pandas", "numpy", "matplotlib", "tabulate", "openpyxl"))
