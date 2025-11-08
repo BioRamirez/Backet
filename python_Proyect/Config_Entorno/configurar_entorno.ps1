@@ -27,5 +27,6 @@ git init
 git remote add origin https://github.com/BioRamirez/Backet
 git remote -v
 
+python
 
 print("✅ Configuración inicial completada con éxito.") 
