@@ -17,7 +17,7 @@ tabla_abundancia = (
 )
 
 # --- Paso 4. Exportar a Excel ---
-ruta_salida = 'Tabla_Abundancia_Semanal.xlsx'
+ruta_salida = 'D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Tabla_Abundancia_Semanal.xlsx'
 with pd.ExcelWriter(ruta_salida, engine='openpyxl') as writer:
     tabla_abundancia.to_excel(writer, sheet_name='Abundancia_Semanal')
 

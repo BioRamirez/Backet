@@ -5,6 +5,9 @@
 # 1️⃣ Activar entorno virtual
 .venv\Scripts\activate
 
+# 3️⃣ Activar entorno virtual
+.venv\Scripts\activate
+
 # 2️⃣ Ver estado del repositorio
 
 git status
