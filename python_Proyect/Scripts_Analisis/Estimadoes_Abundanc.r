@@ -377,11 +377,37 @@ doc <- read_docx() %>%
 # --- Guardar el documento ---
 print(doc, target = "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx")
 
+# --- Convertir a PDF usando Word (solo Windows) ---
+list.dirs("C:/Program Files", full.names = TRUE, recursive = FALSE)
+
+#----------------------Convertir el documento a pdf-----------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #------------------------------------Análisis de estimadores clásicos de abundancia y bootstrap manual---------------------
-
-
-
 
 
 

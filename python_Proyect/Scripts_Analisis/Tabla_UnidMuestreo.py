@@ -26,3 +26,6 @@ print('\\nVista previa:')
 print(tabla_abundancia.head())
 
 
+#-------------Formatear archivo creado desde iNEXT-----------------
+from docx2pdf import convert
+convert(r"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx")

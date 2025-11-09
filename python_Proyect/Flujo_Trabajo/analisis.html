@@ -14976,6 +14976,17 @@ a.anchor-link {
 </div>
 </div>
 </div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3de45e05">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h4 id="Generar-tabla-unidades-de-muestreo">Generar tabla unidades de muestreo<a class="anchor-link" href="#Generar-tabla-unidades-de-muestreo">¶</a></h4>
+</div>
+</div>
+</div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=e590174d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
@@ -14984,8 +14995,4303 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span> 
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">openpyxl</span>
+
+<span class="c1"># --- Paso 1. Asegurar formato de fecha ---</span>
+<span class="n">Registros</span><span class="p">[</span><span class="s1">'FECHA'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">Registros</span><span class="p">[</span><span class="s1">'FECHA'</span><span class="p">])</span>
+
+<span class="c1"># --- Paso 2. Crear rangos semanales ---</span>
+<span class="n">Registros</span><span class="p">[</span><span class="s1">'RANGO_FECHA'</span><span class="p">]</span> <span class="o">=</span> <span class="n">Registros</span><span class="p">[</span><span class="s1">'FECHA'</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">to_period</span><span class="p">(</span><span class="s1">'W'</span><span class="p">)</span>
+
+<span class="c1"># --- Paso 3. Crear tabla de abundancia ---</span>
+<span class="c1"># Agrupamos por especie y rango, sumando el número de individuos</span>
+<span class="n">tabla_abundancia</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Registros</span>
+    <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'ESPECIE'</span><span class="p">,</span> <span class="s1">'RANGO_FECHA'</span><span class="p">])[</span><span class="s1">'INDIVIDUOS'</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>   <span class="c1"># Filas = especies, columnas = rangos</span>
+<span class="p">)</span>
+
+<span class="c1"># --- Paso 4. Exportar a Excel ---</span>
+<span class="n">ruta_salida</span> <span class="o">=</span> <span class="s1">'D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Tabla_Abundancia_Semanal.xlsx'</span>
+<span class="k">with</span> <span class="n">pd</span><span class="o">.</span><span class="n">ExcelWriter</span><span class="p">(</span><span class="n">ruta_salida</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">'openpyxl'</span><span class="p">)</span> <span class="k">as</span> <span class="n">writer</span><span class="p">:</span>
+    <span class="n">tabla_abundancia</span><span class="o">.</span><span class="n">to_excel</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="s1">'Abundancia_Semanal'</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">'✅ Tabla de abundancia creada y guardada en:'</span><span class="p">,</span> <span class="n">ruta_salida</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\\</span><span class="s1">nVista previa:'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">tabla_abundancia</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a5916acb">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Ver-Tabla">Ver Tabla<a class="anchor-link" href="#Ver-Tabla">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4b0506a9">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [14]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+
+<span class="c1"># --- Leer el archivo Excel ---</span>
+<span class="c1"># 👇 Usa una cadena RAW (r"...") para evitar errores con las barras invertidas</span>
+<span class="n">tabla</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="sa">r</span><span class="s2">"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Tabla_Abundancia_Semanal.xlsx"</span><span class="p">)</span>
+
+<span class="c1"># --- Mostrar tabla con desplazamiento vertical ---</span>
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">&lt;h3&gt;Vista del archivo &lt;code&gt;Tabla_Abundancia_Semanal.xlsx&lt;/code&gt;&lt;/h3&gt;</span>
+<span class="s2">&lt;div style="</span>
+<span class="s2">    height: 400px;</span>
+<span class="s2">    overflow-y: scroll;</span>
+<span class="s2">    border: 1px solid #ccc;</span>
+<span class="s2">    padding: 8px;</span>
+<span class="s2">    font-size: 14px;</span>
+<span class="s2">"&gt;</span>
+<span class="si">{</span><span class="n">tabla</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">&lt;/div&gt;</span>
+<span class="s2">"""</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<h3>Vista del archivo <code>Tabla_Abundancia_Semanal.xlsx</code></h3>
+<div style="
+    height: 400px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    padding: 8px;
+    font-size: 14px;
+">
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th>ESPECIE</th>
+<th>2025-08-18/2025-08-24</th>
+<th>2025-08-25/2025-08-31</th>
+<th>2025-09-01/2025-09-07</th>
+<th>2025-09-08/2025-09-14</th>
+<th>2025-09-15/2025-09-21</th>
+<th>2025-09-22/2025-09-28</th>
+<th>2025-09-29/2025-10-05</th>
+<th>2025-10-06/2025-10-12</th>
+<th>2025-10-27/2025-11-02</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aburria aburri</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Accipiter cooperii</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Accipiter striatus</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Adelomyia melanogenys</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Amazilia tzacatl</td>
+<td>6</td>
+<td>0</td>
+<td>4</td>
+<td>15</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Anabacerthia striaticollis</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Anisognathus igniventris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Anoura geoffroyi</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Anthracothorax nigricollis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ara severus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Arremon assimilis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Arremon atricapillus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Arremon brunneinucha</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Artibeus anderseni</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Asemospiza obscura</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Atlapetes albinucha</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Atlapetes pallidinucha</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Atlapetes schistaceus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Aulacorhynchus albivitta</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Aulacorhynchus haematopygus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Basileuterus culicivorus</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Basileuterus tristriatus</td>
+<td>0</td>
+<td>4</td>
+<td>1</td>
+<td>4</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Boissonneaua flavescens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Bradypus variegatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Brotogeris jugularis</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Buteo brachyurus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cacicus chrysonotus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Camptostoma obsoletum</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Campylorhynchus griseus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Campylorhynchus zonatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Capsiempis flaveola</td>
+<td>11</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cardellina canadensis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Carollia brevicauda</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Carollia perspicillata</td>
+<td>0</td>
+<td>0</td>
+<td>10</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Cathartes aura</td>
+<td>5</td>
+<td>0</td>
+<td>1</td>
+<td>9</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Catharus aurantiirostris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Catharus fuscescens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ceratopipra erythrocephala</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cerdocyon thous</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chalybura buffonii</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chalybura urochrysia</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chamaeza campanisona</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorestes cyanus</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorophanes spiza</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorophonia cyanea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorophonia cyanocephala</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorospingus flavopectus</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>12</td>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chlorostilbon poortmani</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chondrohierax uncinatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chordeiles minor</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Chrysuronia oenone</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cinclus leucocephalus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cissopis leverianus</td>
+<td>1</td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Clibanornis rubiginosus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Coeligena torquata</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Coendou pruinosus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Coereba flaveola</td>
+<td>13</td>
+<td>2</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+<td>6</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Colaptes rubiginosus</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>8</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Colibri coruscans</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td>16</td>
+<td>11</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Columbina talpacoti</td>
+<td>13</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Conepatus semistriatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Conirostrum rufum</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Contopus bogotensis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Contopus cooperi</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Contopus fumigatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Contopus sordidulus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Contopus virens</td>
+<td>2</td>
+<td>0</td>
+<td>5</td>
+<td>2</td>
+<td>5</td>
+<td>0</td>
+<td>4</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Coragyps atratus</td>
+<td>13</td>
+<td>5</td>
+<td>6</td>
+<td>43</td>
+<td>24</td>
+<td>6</td>
+<td>9</td>
+<td>8</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Corapipo leucorrhoa</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cranioleuca subcristata</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Crotophaga ani</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>4</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cuniculus paca</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td>3</td>
+<td>1</td>
+<td>2</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Cyanocorax affinis</td>
+<td>1</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cyanocorax yncas</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>10</td>
+<td>14</td>
+<td>4</td>
+<td>3</td>
+<td>9</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cyanolyca armillata</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Cyclarhis gujanensis</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>15</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Dacnis cayana</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Daptrius chimachima</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Dasyprocta punctata</td>
+<td>5</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>9</td>
+</tr>
+<tr>
+<td>Dasypus fenestratus</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Dendrocincla tyrannina</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Didelphis marsupialis</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Didelphis pernigra</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Diglossa caerulescens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>16</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Diglossa cyanea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>10</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Diglossa sittoides</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Dryocopus lineatus</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>5</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Dysithamnus mentalis</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Eira barbara</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Elaenia chiriquensis</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Elaenia flavogaster</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Elaenia frantzii</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Elaenia obscura</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Elaenia parvirostris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Elanus leucurus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Empidonax virescens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Euphonia laniirostris</td>
+<td>12</td>
+<td>0</td>
+<td>2</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Euphonia xanthogaster</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Falco sparverius</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Florisuga mellivora</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Galbula ruficauda</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Geothlypis philadelphia</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Glaucidium brasilianum</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Gracilinanus marica</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Grallaria ruficapilla</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>9</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Gymnomystax mexicanus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Heliangelus clarisse</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Heliangelus strophianus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Heliodoxa leadbeateri</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Henicorhina leucophrys</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>8</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Hylophilus flavipes</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Icterus auricapillus</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Icterus chrysater</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>17</td>
+<td>8</td>
+<td>3</td>
+<td>2</td>
+<td>10</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Icterus nigrogularis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ixothraupis guttata</td>
+<td>5</td>
+<td>2</td>
+<td>4</td>
+<td>8</td>
+<td>10</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Knipolegus poecilurus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Lasiurus blossevillii</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Legatus leucophaius</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Leopardus pardalis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Leopardus pardinoides</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>Lepidocolaptes souleyetii</td>
+<td>3</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Leptopogon superciliaris</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>6</td>
+<td>6</td>
+<td>5</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Leptotila verreauxi</td>
+<td>10</td>
+<td>4</td>
+<td>0</td>
+<td>7</td>
+<td>7</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Leuconotopicus fumigatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Lophotriccus pileatus</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Machaeropterus striolatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Machetornis rixosa</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Malacoptila mystacalis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Manacus manacus</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Marmosa robinsoni</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Mecocerculus leucophrys</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Mecocerculus stictopterus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Megarynchus pitangua</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>6</td>
+<td>2</td>
+<td>0</td>
+<td>10</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Melanerpes rubricapillus</td>
+<td>8</td>
+<td>0</td>
+<td>4</td>
+<td>8</td>
+<td>2</td>
+<td>4</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Melanospiza bicolor</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Metallura tyrianthina</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Micrastur ruficollis</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Micrastur semitorquatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Microcerculus marginatus</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Microrhopias quixensis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Mimus gilvus</td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>3</td>
+<td>6</td>
+<td>9</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Mionectes olivaceus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Mionectes striaticollis</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Mniotilta varia</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Molothrus bonariensis</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Momotus subrufescens</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiarchus crinitus</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiarchus tuberculifer</td>
+<td>8</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myioborus miniatus</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+<td>9</td>
+<td>20</td>
+<td>2</td>
+<td>0</td>
+<td>11</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiodynastes chrysocephalus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiodynastes hemichrysus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiodynastes luteiventris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiodynastes maculatus</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>8</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiophobus fasciatus</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiothlypis coronata</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiothlypis delattrii</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiothlypis nigrocristata</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiozetetes cayanensis</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>11</td>
+<td>4</td>
+<td>2</td>
+<td>8</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myiozetetes similis</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Myotis nigricans</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Nasuella olivacea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Neogale frenata</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Nyctibius grandis</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Nyctidromus albicollis</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ochthoeca cinnamomeiventris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ocreatus underwoodii</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Oporornis agilis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ortalis columbiana</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ortalis ruficauda</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pachyramphus albogriseus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pachyramphus cinnamomeus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pachyramphus polychopterus</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pachyramphus rufus</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pachysylvia semibrunnea</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pandion haliaetus</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Parabuteo leucorrhous</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Parkesia motacilla</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Parkesia noveboracensis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Paroaria nigrogenis</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Passer domesticus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Patagioenas fasciata</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>24</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Patagioenas plumbea</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Patagioenas speciosa</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Patagioenas subvinacea</td>
+<td>12</td>
+<td>2</td>
+<td>13</td>
+<td>4</td>
+<td>8</td>
+<td>12</td>
+<td>23</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Penelope argyrotis</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Penelope montagnii</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phaethornis augusti</td>
+<td>1</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phaethornis griseogularis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phaethornis guy</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phaethornis longirostris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phaethornis striigularis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pharomachrus auriceps</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pheugopedius mystacalis</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pheugopedius rutilus</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phyllomyias griseiceps</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phyllomyias nigrocapillus</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Phyllomyias uropygialis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Piaya cayana</td>
+<td>1</td>
+<td>0</td>
+<td>4</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Piculus chrysochloros</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Picumnus olivaceus</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Piranga flava</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Piranga leucoptera</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Piranga rubra</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pitangus sulphuratus</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>6</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Platyrinchus mystaceus</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Porzana albicollis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Potos flavus</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Procyon cancrivorus</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Proechimys chrysaeolus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Progne tapera</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Psarocolius angustifrons</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pseudopipra pipra</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pygochelidon cyanoleuca</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pyrocephalus rubinus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Pyrrhomyias cinnamomeus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ramphocaenus melanurus</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Ramphocelus dimidiatus</td>
+<td>6</td>
+<td>0</td>
+<td>10</td>
+<td>8</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Rupornis magnirostris</td>
+<td>0</td>
+<td>8</td>
+<td>2</td>
+<td>1</td>
+<td>8</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Saltator maximus</td>
+<td>5</td>
+<td>4</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Saltator olivascens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Saltator striatipectus</td>
+<td>3</td>
+<td>0</td>
+<td>2</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>7</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Saucerottia cyanifrons</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Saucerottia saucerottei</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sayornis nigricans</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sclerurus obscurior</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Scytalopus atratus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Scytalopus latrans</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Scytalopus micropterus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Setophaga castanea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Setophaga cerulea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Setophaga fusca</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Setophaga pitiayumi</td>
+<td>5</td>
+<td>1</td>
+<td>4</td>
+<td>9</td>
+<td>6</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Setophaga ruticilla</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Setophaga striata</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sicalis flaveola</td>
+<td>8</td>
+<td>0</td>
+<td>6</td>
+<td>10</td>
+<td>4</td>
+<td>0</td>
+<td>10</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sittasomus griseicapillus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sphenopsis frontalis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Spinus psaltria</td>
+<td>3</td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Spinus spinescens</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Spinus xanthogastrus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Spizaetus tyrannus</td>
+<td>3</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>8</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporathraupis cyanocephala</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporophila angolensis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporophila intermedia</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporophila minuta</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporophila nigricollis</td>
+<td>20</td>
+<td>2</td>
+<td>8</td>
+<td>6</td>
+<td>4</td>
+<td>0</td>
+<td>8</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sporophila schistacea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stelgidopteryx ruficollis</td>
+<td>2</td>
+<td>0</td>
+<td>11</td>
+<td>12</td>
+<td>0</td>
+<td>5</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stilpnia cayana</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>6</td>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stilpnia cyanicollis</td>
+<td>17</td>
+<td>4</td>
+<td>8</td>
+<td>13</td>
+<td>13</td>
+<td>2</td>
+<td>4</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stilpnia cyanoptera</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>12</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stilpnia heinei</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>11</td>
+<td>12</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Stilpnia vitriolina</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Streptopelia roseogrisea</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Streptoprocne rutila</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Streptoprocne zonaris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sturnella magna</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Sturnira lilium</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Synallaxis albescens</td>
+<td>3</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Synallaxis azarae</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Synallaxis cinnamomea</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Synallaxis unirufa</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Syntheosciurus granatensis</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>3</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Tachyphonus rufus</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Tangara arthus</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tangara gyrola</td>
+<td>1</td>
+<td>2</td>
+<td>14</td>
+<td>22</td>
+<td>12</td>
+<td>0</td>
+<td>2</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tangara nigroviridis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tersina viridis</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thalurania colombica</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thamnophilus atrinucha</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thamnophilus doliatus</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thamnophilus multistriatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Theristicus caudatus</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thraupis episcopus</td>
+<td>4</td>
+<td>2</td>
+<td>11</td>
+<td>22</td>
+<td>21</td>
+<td>3</td>
+<td>2</td>
+<td>5</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Thraupis palmarum</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>6</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tiaris olivaceus</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Todirostrum cinereum</td>
+<td>3</td>
+<td>2</td>
+<td>5</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tolmomyias flaviventris</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Troglodytes musculus</td>
+<td>7</td>
+<td>0</td>
+<td>4</td>
+<td>8</td>
+<td>0</td>
+<td>2</td>
+<td>7</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Troglodytes solstitialis</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Trogon personatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus flavipes</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus fumigatus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus fuscater</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>15</td>
+<td>13</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus grayi</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus ignobilis</td>
+<td>6</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus leucomelas</td>
+<td>2</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus nudigenis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus olivater</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Turdus serranus</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tyrannus melancholicus</td>
+<td>14</td>
+<td>0</td>
+<td>6</td>
+<td>15</td>
+<td>8</td>
+<td>2</td>
+<td>5</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Tyrannus savana</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Urocyon cinereoargenteus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Vanellus chilensis</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Vireo chivi</td>
+<td>3</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Vireo leucophrys</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Vireo olivaceus</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Volatinia jacarina</td>
+<td>10</td>
+<td>0</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>8</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Xenops rutilans</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Xiphorhynchus susurrans</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Zenaida auriculata</td>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Zentrygon linearis</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>6</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Zimmerius chrysops</td>
+<td>3</td>
+<td>4</td>
+<td>7</td>
+<td>17</td>
+<td>16</td>
+<td>2</td>
+<td>16</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Zonotrichia capensis</td>
+<td>10</td>
+<td>3</td>
+<td>5</td>
+<td>15</td>
+<td>27</td>
+<td>3</td>
+<td>2</td>
+<td>10</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=00f87b09">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Generar-analisis-de-datos-con-iNEXT-en-R">Generar analisis de datos con iNEXT en R<a class="anchor-link" href="#Generar-analisis-de-datos-con-iNEXT-en-R">¶</a></h2><p>Lo que se hace es generar un analisis de datos en R con iNEXT donde se generara una curva de acumulacion de especies comparada con el indice Chao1 y tambien un analisis de los numeros de Hills</p>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7c2472e0">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Analizar-el-coeficiente-de-vairacion-CV-de-la-tabla-de-datos">Analizar el coeficiente de vairacion CV de la tabla de datos<a class="anchor-link" href="#Analizar-el-coeficiente-de-vairacion-CV-de-la-tabla-de-datos">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f5fc9bf1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1"># ==========================================================</span>
+<span class="c1"># ANÁLISIS DE ESTIMADORES DE DIVERSIDAD (PARAMÉTRICOS Y NO PARAMÉTRICOS)</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># 🔹 ESTIMADORES DE RIQUEZA TIPO ESTIMATES + IC95%</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 🔧 1️⃣ Cargar o instalar paquetes necesarios</span>
+<span class="c1"># ============================================================</span>
+<span class="n">paquetes</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="s2">"readxl"</span><span class="p">,</span> <span class="s2">"vegan"</span><span class="p">,</span> <span class="s2">"dplyr"</span><span class="p">)</span>
+
+<span class="c1"># Instala los que falten</span>
+<span class="n">instalar</span> <span class="o">&lt;-</span> <span class="n">paquetes</span><span class="p">[</span><span class="o">!(</span>paquetes<span class="w"> </span>%in%<span class="w"> </span>installed.packages<span class="o">()[</span>,<span class="s2">"Package"</span><span class="o">])]</span>
+<span class="k">if</span><span class="p">(</span><span class="n">length</span><span class="p">(</span><span class="n">instalar</span><span class="p">))</span> <span class="n">install</span><span class="o">.</span><span class="n">packages</span><span class="p">(</span><span class="n">instalar</span><span class="p">)</span>
+
+<span class="c1"># Cargar paquetes</span>
+<span class="n">lapply</span><span class="p">(</span><span class="n">paquetes</span><span class="p">,</span> <span class="n">library</span><span class="p">,</span> <span class="n">character</span><span class="o">.</span><span class="n">only</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 📂 2️⃣ Cargar datos desde Excel</span>
+<span class="c1"># ============================================================</span>
+<span class="n">ruta</span> <span class="o">&lt;-</span> <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Tabla_Abundancia_Semanal.xlsx"</span>
+<span class="n">datos</span> <span class="o">&lt;-</span> <span class="n">read_excel</span><span class="p">(</span><span class="n">ruta</span><span class="p">,</span> <span class="n">sheet</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 📊 Evaluar el coeficiente de variación (CV) antes de estimar riqueza</span>
+<span class="c1"># ============================================================</span>
+
+<span class="c1"># 🔹 Paquete necesario</span>
+<span class="n">library</span><span class="p">(</span><span class="n">SpadeR</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">tidyverse</span><span class="p">)</span>
+
+<span class="c1"># 🔹 Convertir tu dataframe 'datos' en una matriz de abundancia</span>
+<span class="c1"># Primera columna = ESPECIE</span>
+<span class="n">matriz</span> <span class="o">&lt;-</span> <span class="n">datos</span> <span class="o">%&gt;%</span>
+  <span class="n">column_to_rownames</span><span class="p">(</span><span class="s2">"ESPECIE"</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="k">as</span><span class="o">.</span><span class="n">matrix</span><span class="p">()</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 🔹 Preparar datos de incidencia</span>
+<span class="c1"># ============================================================</span>
+<span class="c1"># Convierte la matriz de abundancias a matriz de incidencias (1 = presente, 0 = ausente)</span>
+<span class="n">incidencia</span> <span class="o">&lt;-</span> <span class="n">ifelse</span><span class="p">(</span><span class="n">matriz</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 📊 Evaluar el coeficiente de variación (CV) antes de estimar riqueza</span>
+<span class="c1"># ============================================================</span>
+
+<span class="n">library</span><span class="p">(</span><span class="n">SpadeR</span><span class="p">)</span>
+
+<span class="c1"># 1️⃣ Asegúrate de tener creada la matriz de incidencias</span>
+<span class="c1"># (si ya la tienes no repitas esta parte)</span>
+<span class="c1"># incidencia &lt;- ifelse(matriz &gt; 0, 1, 0)</span>
+
+<span class="n">T</span> <span class="o">&lt;-</span> <span class="n">ncol</span><span class="p">(</span><span class="n">incidencia</span><span class="p">)</span>
+<span class="n">S_obs</span> <span class="o">&lt;-</span> <span class="n">nrow</span><span class="p">(</span><span class="n">incidencia</span><span class="p">)</span>
+<span class="n">f_i</span> <span class="o">&lt;-</span> <span class="n">rowSums</span><span class="p">(</span><span class="n">incidencia</span><span class="p">)</span>
+
+<span class="c1"># 2️⃣ Crear el vector en formato correcto para SpadeR</span>
+<span class="n">incidencia_freq</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">f_i</span><span class="p">)</span>
+
+<span class="c1"># 3️⃣ Calcular el estimador</span>
+<span class="n">spade_temp</span> <span class="o">&lt;-</span> <span class="n">SpadeR</span><span class="p">::</span><span class="n">ChaoSpecies</span><span class="p">(</span><span class="n">incidencia_freq</span><span class="p">,</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">"incidence_freq"</span><span class="p">)</span>
+
+<span class="c1"># 4️⃣ Extraer el CV con el nombre correcto</span>
+<span class="n">cv_valor</span> <span class="o">&lt;-</span> <span class="k">as</span><span class="o">.</span><span class="n">numeric</span><span class="p">(</span><span class="n">spade_temp</span><span class="err">$</span><span class="n">Basic_data_information</span><span class="err">$</span><span class="n">Value</span><span class="p">[</span>
+  <span class="n">spade_temp</span><span class="err">$</span><span class="n">Basic_data_information</span><span class="err">$</span><span class="n">Variable</span> <span class="o">==</span> <span class="s2">"CV"</span>
+<span class="p">])</span>
+
+<span class="c1"># 5️⃣ Si SpadeR no devuelve CV (raro, pero posible), calcularlo manualmente</span>
+<span class="k">if</span> <span class="p">(</span><span class="ow">is</span><span class="o">.</span><span class="n">na</span><span class="p">(</span><span class="n">cv_valor</span><span class="p">)</span> <span class="o">||</span> <span class="n">length</span><span class="p">(</span><span class="n">cv_valor</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">cv_valor</span> <span class="o">&lt;-</span> <span class="n">sd</span><span class="p">(</span><span class="n">f_i</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean</span><span class="p">(</span><span class="n">f_i</span><span class="p">)</span>
+  <span class="n">message</span><span class="p">(</span><span class="s2">"⚠️ CV calculado manualmente a partir de las frecuencias de incidencia."</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 🧭 Interpretación automática del CV (mensaje estilo EstimateS)</span>
+<span class="c1"># ============================================================</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">cv_valor</span> <span class="o">&lt;=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">mensaje</span> <span class="o">&lt;-</span> <span class="n">paste0</span><span class="p">(</span>
+    <span class="s2">"📘 NOTA: El coeficiente de variación estimado para la distribución de incidencias es "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">cv_valor</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="s2">".</span><span class="se">\n</span><span class="s2">Como CV ≤ 0.5, la comunidad es relativamente homogénea.</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+    <span class="s2">"➡️ Se recomienda utilizar la versión **corregida por sesgo (bias-corrected)** del estimador Chao2."</span>
+  <span class="p">)</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="n">mensaje</span> <span class="o">&lt;-</span> <span class="n">paste0</span><span class="p">(</span>
+    <span class="s2">"⚠️ NOTA: El coeficiente de variación estimado para la distribución de incidencias es "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">cv_valor</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="s2">".</span><span class="se">\n</span><span class="s2">Dado que CV &gt; 0.5, existe alta heterogeneidad en la detectabilidad de las especies.</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+    <span class="s2">"➡️ Anne Chao recomienda **usar la versión clásica (Classic)** del estimador Chao2 en lugar de la bias-corrected.</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+    <span class="s2">"Posteriormente, compara los valores de **Chao2 clásico** y **ICE**, y reporta el mayor como mejor estimador de la riqueza basada en incidencias."</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># ============================================================</span>
+<span class="c1"># 📋 Mostrar el mensaje y el valor numérico</span>
+<span class="c1"># ============================================================</span>
+<span class="n">cat</span><span class="p">(</span><span class="n">mensaje</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">Valor numérico del CV:"</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">cv_valor</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3124d3f1">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Generar-el-analisis-automatico-de-la-curva-de-acumulacion-de-especies-iNEXT">Generar el analisis automatico de la curva de acumulacion de especies iNEXT<a class="anchor-link" href="#Generar-el-analisis-automatico-de-la-curva-de-acumulacion-de-especies-iNEXT">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=23122e9d">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#--------------------------------------------------------------Calcular la efectividad del muestreo iNEXT---------------------</span>
+
+
+
+<span class="n">library</span><span class="p">(</span><span class="n">readxl</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">iNEXT</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
+<span class="c1"># --- Leer la tabla ---</span>
+<span class="n">ruta</span> <span class="o">&lt;-</span> <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Tabla_Abundancia_Semanal.xlsx"</span>
+<span class="n">datos</span> <span class="o">&lt;-</span> <span class="n">read_excel</span><span class="p">(</span><span class="n">ruta</span><span class="p">,</span> <span class="n">sheet</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># --- Preparar la matriz de abundancia ---</span>
+<span class="n">rownames</span><span class="p">(</span><span class="n">datos</span><span class="p">)</span> <span class="o">&lt;-</span> <span class="n">datos</span><span class="p">[[</span><span class="mi">1</span><span class="p">]]</span>       <span class="c1"># nombres de especies</span>
+<span class="n">datos</span> <span class="o">&lt;-</span> <span class="n">datos</span><span class="p">[</span> <span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>               <span class="c1"># eliminar columna de nombres</span>
+<span class="n">matriz</span> <span class="o">&lt;-</span> <span class="k">as</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="n">datos</span><span class="p">)</span>
+
+<span class="c1"># Vector de abundancias totales por especie</span>
+<span class="n">abund_total</span> <span class="o">&lt;-</span> <span class="n">rowSums</span><span class="p">(</span><span class="n">matriz</span><span class="p">)</span>
+
+<span class="c1"># Crear el objeto iNEXT</span>
+<span class="n">inext_result</span> <span class="o">&lt;-</span> <span class="n">iNEXT</span><span class="p">(</span><span class="n">abund_total</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">"abundance"</span><span class="p">)</span>
+
+<span class="c1"># Información básica de los datos (análoga a “Data Summary” de EstimateS)</span>
+<span class="n">info</span> <span class="o">&lt;-</span> <span class="n">iNEXT</span><span class="p">:::</span><span class="n">DataInfo</span><span class="p">(</span><span class="n">abund_total</span><span class="p">,</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">"abundance"</span><span class="p">)</span>
+<span class="n">info</span>
+
+<span class="c1"># Tabla de estimadores asintóticos</span>
+<span class="n">asy</span> <span class="o">&lt;-</span> <span class="n">inext_result</span><span class="err">$</span><span class="n">AsyEst</span>
+<span class="n">asy</span>
+
+
+<span class="n">interpretar_inext</span> <span class="o">&lt;-</span> <span class="n">function</span><span class="p">(</span><span class="n">iNEXT_result</span><span class="p">,</span> <span class="n">sitio</span> <span class="o">=</span> <span class="s2">"Muestreo"</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">info</span> <span class="o">&lt;-</span> <span class="n">info</span>
+  <span class="n">asy</span> <span class="o">&lt;-</span> <span class="n">inext_result</span><span class="err">$</span><span class="n">AsyEst</span>
+  
+  <span class="n">n</span> <span class="o">&lt;-</span> <span class="n">info</span><span class="err">$</span><span class="n">n</span>
+  <span class="n">s_obs</span> <span class="o">&lt;-</span> <span class="n">info</span><span class="err">$</span><span class="n">S</span><span class="o">.</span><span class="n">obs</span>
+  <span class="n">sc</span> <span class="o">&lt;-</span> <span class="n">info</span><span class="err">$</span><span class="n">SC</span>
+  <span class="n">f1</span> <span class="o">&lt;-</span> <span class="n">info</span><span class="err">$</span><span class="n">f1</span>
+  <span class="n">f2</span> <span class="o">&lt;-</span> <span class="n">info</span><span class="err">$</span><span class="n">f2</span>
+  
+<span class="c1"># Convertir las filas a una columna de nombres</span>
+<span class="n">asy_df</span> <span class="o">&lt;-</span> <span class="n">tibble</span><span class="p">::</span><span class="n">rownames_to_column</span><span class="p">(</span><span class="k">as</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">frame</span><span class="p">(</span><span class="n">asy</span><span class="p">),</span> <span class="n">var</span> <span class="o">=</span> <span class="s2">"Indice"</span><span class="p">)</span>
+
+<span class="c1"># Acceso seguro por nombre del índice</span>
+<span class="n">s_obs</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Species Richness"</span><span class="p">]</span>
+<span class="n">s_est</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Species Richness"</span><span class="p">]</span>
+
+<span class="n">shannon_obs</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Shannon diversity"</span><span class="p">]</span>
+<span class="n">shannon_est</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Shannon diversity"</span><span class="p">]</span>
+
+<span class="n">simpson_obs</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Simpson diversity"</span><span class="p">]</span>
+<span class="n">simpson_est</span> <span class="o">&lt;-</span> <span class="n">asy_df</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="n">asy_df</span><span class="err">$</span><span class="n">Indice</span> <span class="o">==</span> <span class="s2">"Simpson diversity"</span><span class="p">]</span>
+
+<span class="c1"># Diferencia de riqueza</span>
+<span class="n">s_diff</span> <span class="o">&lt;-</span> <span class="n">s_est</span> <span class="o">-</span> <span class="n">s_obs</span>
+
+  
+  <span class="c1"># --- Interpretaciones dinámicas ---</span>
+  <span class="n">cobertura_txt</span> <span class="o">&lt;-</span> <span class="n">case_when</span><span class="p">(</span>
+    <span class="n">sc</span> <span class="o">&gt;=</span> <span class="mf">0.95</span> <span class="o">~</span> <span class="s2">"altamente representativo del ensamble analizado"</span><span class="p">,</span>
+    <span class="n">sc</span> <span class="o">&gt;=</span> <span class="mf">0.85</span> <span class="o">~</span> <span class="s2">"moderadamente representativo del ensamble"</span><span class="p">,</span>
+    <span class="n">TRUE</span> <span class="o">~</span> <span class="s2">"poco representativo; el muestreo podría no haber capturado toda la diversidad existente"</span>
+  <span class="p">)</span>
+  
+  <span class="n">rareza_txt</span> <span class="o">&lt;-</span> <span class="n">case_when</span><span class="p">(</span>
+    <span class="n">f1</span> <span class="o">/</span> <span class="n">s_obs</span> <span class="o">&gt;</span> <span class="mf">0.3</span> <span class="o">~</span> <span class="s2">"una alta proporción de especies raras, lo que sugiere que aún hay especies poco detectadas"</span><span class="p">,</span>
+    <span class="n">f1</span> <span class="o">/</span> <span class="n">s_obs</span> <span class="o">&gt;</span> <span class="mf">0.15</span> <span class="o">~</span> <span class="s2">"una proporción moderada de especies raras"</span><span class="p">,</span>
+    <span class="n">TRUE</span> <span class="o">~</span> <span class="s2">"una baja proporción de especies raras, lo que indica una buena caracterización del ensamble"</span>
+  <span class="p">)</span>
+  
+  <span class="n">completitud_txt</span> <span class="o">&lt;-</span> <span class="n">case_when</span><span class="p">(</span>
+    <span class="n">s_diff</span> <span class="o">&lt;=</span> <span class="mi">5</span> <span class="o">~</span> <span class="s2">"lo que confirma la alta completitud del inventario"</span><span class="p">,</span>
+    <span class="n">s_diff</span> <span class="o">&lt;=</span> <span class="mi">20</span> <span class="o">~</span> <span class="s2">"lo que sugiere que podrían existir algunas especies adicionales por detectar"</span><span class="p">,</span>
+    <span class="n">TRUE</span> <span class="o">~</span> <span class="s2">"lo que indica que el esfuerzo de muestreo debería incrementarse para capturar adecuadamente la riqueza total"</span>
+  <span class="p">)</span>
+  
+  <span class="n">texto</span> <span class="o">&lt;-</span> <span class="n">paste0</span><span class="p">(</span>
+    <span class="s2">"En el "</span><span class="p">,</span> <span class="n">sitio</span><span class="p">,</span> <span class="s2">" se registraron un total de "</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="s2">" individuos y "</span><span class="p">,</span>
+    <span class="n">s_obs</span><span class="p">,</span> <span class="s2">" especies observadas. El valor de cobertura de muestra (SC = "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">sc</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s2">") indica que el muestreo fue "</span><span class="p">,</span> <span class="n">cobertura_txt</span><span class="p">,</span> <span class="s2">". "</span><span class="p">,</span>
+    <span class="s2">"Se detectaron "</span><span class="p">,</span> <span class="n">f1</span><span class="p">,</span> <span class="s2">" especies con un solo individuo (singletons) y "</span><span class="p">,</span>
+    <span class="n">f2</span><span class="p">,</span> <span class="s2">" con dos individuos (doubletons), lo que representa "</span><span class="p">,</span> <span class="n">rareza_txt</span><span class="p">,</span> <span class="s2">". "</span><span class="p">,</span>
+    <span class="s2">"El estimador asintótico de riqueza (Chao1) predice aproximadamente "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">s_est</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">" especies, es decir, unas "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">s_diff</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">" más de las observadas, "</span><span class="p">,</span> <span class="n">completitud_txt</span><span class="p">,</span> <span class="s2">". "</span><span class="p">,</span>
+    <span class="s2">"El índice de Shannon aumentó de "</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">shannon_obs</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">" a "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">shannon_est</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">", y el índice de Simpson pasó de "</span><span class="p">,</span>
+    <span class="nb">round</span><span class="p">(</span><span class="n">simpson_obs</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">" a "</span><span class="p">,</span> <span class="nb">round</span><span class="p">(</span><span class="n">simpson_est</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> 
+    <span class="s2">", lo que refleja la estructura de abundancias y equidad de la comunidad."</span>
+  <span class="p">)</span>
+  
+  <span class="k">return</span><span class="p">(</span><span class="n">texto</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Ejemplo</span>
+<span class="n">interpretacion</span> <span class="o">&lt;-</span> <span class="n">interpretar_inext</span><span class="p">(</span><span class="n">inext_result</span><span class="p">,</span> <span class="n">sitio</span> <span class="o">=</span> <span class="s2">"Muestreo"</span><span class="p">)</span>
+<span class="n">cat</span><span class="p">(</span><span class="n">interpretacion</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=86c579ba">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Graficar-Curva-de-acumulacion">Graficar Curva de acumulacion<a class="anchor-link" href="#Graficar-Curva-de-acumulacion">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a5eee571">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#-------------------------------------------------------------- Gráfica de curvas de acumulación iNEXT---------------------</span>
+
+<span class="c1"># Información básica de los datos (análoga a “Data Summary” de EstimateS)</span>
+<span class="n">info</span> <span class="o">&lt;-</span> <span class="n">iNEXT</span><span class="p">:::</span><span class="n">DataInfo</span><span class="p">(</span><span class="n">abund_total</span><span class="p">,</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">"abundance"</span><span class="p">)</span>
+<span class="n">info</span>
+
+<span class="c1"># Tabla de estimadores asintóticos</span>
+<span class="n">asy</span> <span class="o">&lt;-</span> <span class="n">inext_result</span><span class="err">$</span><span class="n">AsyEst</span>
+<span class="n">asy</span>
+
+
+<span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+
+<span class="n">ggiNEXT</span><span class="p">(</span><span class="n">inext_result</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">)</span> <span class="o">+</span>
+  <span class="n">labs</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">"Curva de acumulación de especies"</span><span class="p">,</span>
+    <span class="n">subtitle</span> <span class="o">=</span> <span class="s2">"Riqueza observada, interpolada y extrapolada"</span><span class="p">,</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="s2">"Número de individuos muestreados"</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="s2">"Número de especies (S)"</span>
+  <span class="p">)</span> <span class="o">+</span>
+  <span class="n">theme_minimal</span><span class="p">(</span><span class="n">base_size</span> <span class="o">=</span> <span class="mi">14</span><span class="p">)</span> <span class="o">+</span>
+  <span class="n">theme</span><span class="p">(</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">face</span> <span class="o">=</span> <span class="s2">"bold"</span><span class="p">,</span> <span class="n">hjust</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">hjust</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">),</span>
+    <span class="n">legend</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="s2">"bottom"</span>
+  <span class="p">)</span>
+
+
+
+<span class="n">ggsave</span><span class="p">(</span>
+  <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Curva_Acumulacion_iNEXT.png"</span><span class="p">,</span>
+  <span class="n">width</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="n">height</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span>
+  <span class="n">dpi</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+  <span class="n">bg</span> <span class="o">=</span> <span class="s2">"white"</span>   <span class="c1"># 👈 asegura fondo blanco</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=980b67b4">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Generar-grafico-y-el-informe-automatico-de-los-numeros-de-Hills">Generar grafico y el informe automatico de los numeros de Hills<a class="anchor-link" href="#Generar-grafico-y-el-informe-automatico-de-los-numeros-de-Hills">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=dc390ae2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#------------------------------------Graficar he interpetar demas estimadores de iNEXT---------------------</span>
+
+<span class="n">inext_todos</span> <span class="o">&lt;-</span> <span class="n">iNEXT</span><span class="p">(</span><span class="n">abund_total</span><span class="p">,</span> <span class="n">q</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">"abundance"</span><span class="p">)</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 📦 Paquetes necesarios</span>
+<span class="c1"># ======================================</span>
+<span class="n">library</span><span class="p">(</span><span class="n">iNEXT</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">dplyr</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">ggplot2</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">glue</span><span class="p">)</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 🧮 1. Cargar tu objeto iNEXT</span>
+<span class="c1"># ======================================</span>
+<span class="c1"># (Ya generado previamente)</span>
+<span class="c1"># inext_todos &lt;- iNEXT(datos, q = c(0,1,2), datatype = "abundance")</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 📊 2. Extraer la tabla asintótica</span>
+<span class="c1"># ======================================</span>
+<span class="n">resumen_asy</span> <span class="o">&lt;-</span> <span class="n">inext_todos</span><span class="err">$</span><span class="n">AsyEst</span> <span class="o">%&gt;%</span>
+  <span class="n">mutate</span><span class="p">(</span>
+    <span class="n">Orden_q</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="n">Tipo</span> <span class="o">=</span> <span class="n">c</span><span class="p">(</span><span class="s2">"Riqueza (q=0)"</span><span class="p">,</span> <span class="s2">"Diversidad de Shannon (q=1)"</span><span class="p">,</span> <span class="s2">"Diversidad de Simpson (q=2)"</span><span class="p">)</span>
+  <span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">select</span><span class="p">(</span><span class="n">Tipo</span><span class="p">,</span> <span class="n">Observed</span><span class="p">,</span> <span class="n">Estimator</span><span class="p">,</span> <span class="n">Est_s</span><span class="o">.</span><span class="n">e</span><span class="o">.</span><span class="p">,</span> <span class="err">`</span><span class="mi">95</span><span class="o">%</span> <span class="n">Lower</span><span class="err">`</span><span class="p">,</span> <span class="err">`</span><span class="mi">95</span><span class="o">%</span> <span class="n">Upper</span><span class="err">`</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">resumen_asy</span><span class="p">)</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 📈 3. Generar gráfico resumen de curvas</span>
+<span class="c1"># ======================================</span>
+<span class="n">grafico_inext</span> <span class="o">&lt;-</span> <span class="n">ggiNEXT</span><span class="p">(</span><span class="n">inext_todos</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">se</span> <span class="o">=</span> <span class="n">TRUE</span><span class="p">,</span> <span class="n">color</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="s2">"Order.q"</span><span class="p">)</span> <span class="o">+</span>
+  <span class="n">labs</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">"Curvas de Diversidad de Hill (q = 0, 1, 2)"</span><span class="p">,</span>
+    <span class="n">subtitle</span> <span class="o">=</span> <span class="s2">"Riqueza observada, interpolada y extrapolada con intervalos de confianza (95%)"</span><span class="p">,</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="s2">"Número de individuos (m)"</span><span class="p">,</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="s2">"Número efectivo de especies (qD)"</span><span class="p">,</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="s2">"Orden de diversidad (q)"</span>
+  <span class="p">)</span> <span class="o">+</span>
+  <span class="n">theme_minimal</span><span class="p">(</span><span class="n">base_size</span> <span class="o">=</span> <span class="mi">13</span><span class="p">)</span> <span class="o">+</span>
+  <span class="n">theme</span><span class="p">(</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">face</span> <span class="o">=</span> <span class="s2">"bold"</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="n">plot</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">element_text</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="n">legend</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="s2">"top"</span>
+  <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">grafico_inext</span><span class="p">)</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 🧩 4. Cálculo automático de suficiencia e interpretación</span>
+<span class="c1"># ======================================</span>
+<span class="n">interpretacion2</span> <span class="o">&lt;-</span> <span class="n">resumen_asy</span> <span class="o">%&gt;%</span>
+  <span class="n">mutate</span><span class="p">(</span>
+    <span class="n">Diferencia</span> <span class="o">=</span> <span class="n">Estimator</span> <span class="o">-</span> <span class="n">Observed</span><span class="p">,</span>
+    <span class="n">Porcentaje_completitud</span> <span class="o">=</span> <span class="p">(</span><span class="n">Observed</span> <span class="o">/</span> <span class="n">Estimator</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="n">Conclusion</span> <span class="o">=</span> <span class="n">case_when</span><span class="p">(</span>
+      <span class="n">Porcentaje_completitud</span> <span class="o">&gt;</span> <span class="mi">95</span> <span class="o">~</span> <span class="s2">"El muestreo fue suficiente; las curvas alcanzan una tendencia asintótica."</span><span class="p">,</span>
+      <span class="n">Porcentaje_completitud</span> <span class="o">&gt;</span> <span class="mi">85</span> <span class="o">~</span> <span class="s2">"El muestreo fue adecuado, aunque podrían registrarse algunas especies adicionales."</span><span class="p">,</span>
+      <span class="n">TRUE</span> <span class="o">~</span> <span class="s2">"El muestreo fue insuficiente; se espera mayor riqueza con un esfuerzo adicional."</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">interpretacion2</span><span class="p">)</span>
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 📝 5. Generar texto interpretativo automático</span>
+<span class="c1"># ======================================</span>
+<span class="n">texto_interpretacion</span> <span class="o">&lt;-</span> <span class="n">glue</span><span class="p">(</span>
+  <span class="s2">"🔹 En el análisis de diversidad basado en números de Hill:</span>
+  
+  <span class="o">-</span> <span class="n">Para</span> <span class="n">q</span> <span class="o">=</span> <span class="mi">0</span> <span class="p">(</span><span class="n">riqueza</span> <span class="n">de</span> <span class="n">especies</span><span class="p">),</span> <span class="n">se</span> <span class="n">observaron</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)}</span> <span class="n">especies</span><span class="p">,</span>
+    <span class="n">con</span> <span class="n">una</span> <span class="n">estimación</span> <span class="n">asintótica</span> <span class="n">de</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">1</span><span class="p">)}</span> <span class="err">±</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Est_s</span><span class="o">.</span><span class="n">e</span><span class="o">.</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="p">)}</span><span class="o">.</span>
+    <span class="n">Esto</span> <span class="n">representa</span> <span class="n">un</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Porcentaje_completitud</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="mi">2</span><span class="p">)}</span><span class="o">%</span> <span class="n">de</span> <span class="n">completitud</span><span class="p">,</span> <span class="n">lo</span> <span class="n">que</span> <span class="n">indica</span> <span class="n">que</span> <span class="p">{</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Conclusion</span><span class="p">[</span><span class="mi">1</span><span class="p">]}</span><span class="o">.</span>
+
+  <span class="o">-</span> <span class="n">Para</span> <span class="n">q</span> <span class="o">=</span> <span class="mi">1</span> <span class="p">(</span><span class="n">diversidad</span> <span class="n">de</span> <span class="n">Shannon</span><span class="p">),</span> <span class="n">el</span> <span class="n">número</span> <span class="n">efectivo</span> <span class="n">de</span> <span class="n">especies</span> <span class="n">fue</span> <span class="n">de</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">)}</span> 
+    <span class="n">y</span> <span class="n">la</span> <span class="n">estimación</span> <span class="n">asintótica</span> <span class="n">alcanzó</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">1</span><span class="p">)}</span> <span class="err">±</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Est_s</span><span class="o">.</span><span class="n">e</span><span class="o">.</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">2</span><span class="p">)}</span> 
+    <span class="p">({</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Porcentaje_completitud</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="mi">2</span><span class="p">)}</span><span class="o">%</span> <span class="n">de</span> <span class="n">completitud</span><span class="p">)</span><span class="o">.</span> <span class="p">{</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Conclusion</span><span class="p">[</span><span class="mi">2</span><span class="p">]}</span><span class="o">.</span>
+
+  <span class="o">-</span> <span class="n">Para</span> <span class="n">q</span> <span class="o">=</span> <span class="mi">2</span> <span class="p">(</span><span class="n">diversidad</span> <span class="n">de</span> <span class="n">Simpson</span><span class="p">),</span> <span class="n">el</span> <span class="n">número</span> <span class="n">efectivo</span> <span class="n">de</span> <span class="n">especies</span> <span class="n">dominantes</span> <span class="n">fue</span> <span class="n">de</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Observed</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">1</span><span class="p">)},</span>
+    <span class="n">con</span> <span class="n">un</span> <span class="n">valor</span> <span class="n">esperado</span> <span class="n">de</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Estimator</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">1</span><span class="p">)}</span> <span class="err">±</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Est_s</span><span class="o">.</span><span class="n">e</span><span class="o">.</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">2</span><span class="p">)},</span> 
+    <span class="n">alcanzando</span> <span class="n">un</span> <span class="p">{</span><span class="nb">round</span><span class="p">(</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Porcentaje_completitud</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="mi">2</span><span class="p">)}</span><span class="o">%</span> <span class="n">de</span> <span class="n">completitud</span><span class="o">.</span> <span class="p">{</span><span class="n">interpretacion2</span><span class="err">$</span><span class="n">Conclusion</span><span class="p">[</span><span class="mi">3</span><span class="p">]}</span><span class="o">.</span>
+  
+  <span class="n">En</span> <span class="n">conjunto</span><span class="p">,</span> <span class="n">las</span> <span class="n">tres</span> <span class="n">curvas</span> <span class="n">muestran</span> <span class="n">una</span> <span class="n">tendencia</span> <span class="n">asintótica</span><span class="p">,</span> <span class="n">evidenciando</span> <span class="n">que</span> <span class="n">el</span> <span class="n">esfuerzo</span> <span class="n">de</span> <span class="n">muestreo</span> <span class="n">fue</span> <span class="n">adecuado</span> 
+  <span class="n">para</span> <span class="n">representar</span> <span class="n">la</span> <span class="n">mayoría</span> <span class="n">de</span> <span class="n">las</span> <span class="n">especies</span> <span class="n">presentes</span> <span class="n">en</span> <span class="n">la</span> <span class="n">comunidad</span><span class="o">.</span><span class="s2">"</span>
+<span class="p">)</span>
+
+<span class="n">cat</span><span class="p">(</span><span class="n">texto_interpretacion</span><span class="p">)</span>
+
+
+<span class="c1"># ======================================</span>
+<span class="c1"># 💾 6. Guardar resultados</span>
+<span class="c1"># ======================================</span>
+
+<span class="n">ggsave</span><span class="p">(</span><span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hill_iNEXT.png"</span><span class="p">,</span>
+       <span class="n">plot</span> <span class="o">=</span> <span class="n">grafico_inext</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">8</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">6</span><span class="p">,</span> <span class="n">dpi</span> <span class="o">=</span> <span class="mi">300</span><span class="p">,</span>
+  <span class="n">bg</span> <span class="o">=</span> <span class="s2">"white"</span>   <span class="c1"># 👈 asegura fondo blanco</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=075154ba">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Guardar-informe-de-los-analisis-realizados-con-iNEXT">Guardar informe de los analisis realizados con iNEXT<a class="anchor-link" href="#Guardar-informe-de-los-analisis-realizados-con-iNEXT">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3b9c0815">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#-----------------Guardar documento word con resultados de iNEXT-----------------------</span>
+
+<span class="n">library</span><span class="p">(</span><span class="n">officer</span><span class="p">)</span>
+<span class="n">library</span><span class="p">(</span><span class="n">magrittr</span><span class="p">)</span>
+
+<span class="c1"># --- Capturar la salida exacta del segundo texto ---</span>
+<span class="n">texto_final</span> <span class="o">&lt;-</span> <span class="n">capture</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">cat</span><span class="p">(</span><span class="n">texto_interpretacion</span><span class="p">))</span>
+
+<span class="c1"># --- Crear documento Word con ambos gráficos e interpretaciones ---</span>
+<span class="n">doc</span> <span class="o">&lt;-</span> <span class="n">read_docx</span><span class="p">()</span> <span class="o">%&gt;%</span>
+  <span class="c1"># --- Sección 1: Curva de acumulación ---</span>
+  <span class="n">body_add_par</span><span class="p">(</span><span class="s2">"Curva de acumulación de especies (iNEXT)"</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"heading 1"</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_img</span><span class="p">(</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Curva_Acumulacion_iNEXT.png"</span><span class="p">,</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mf">6.5</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"centered"</span>
+  <span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_par</span><span class="p">(</span><span class="s2">"Interpretación del análisis"</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"heading 2"</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_fpar</span><span class="p">(</span><span class="n">fpar</span><span class="p">(</span><span class="n">interpretacion</span><span class="p">,</span> <span class="n">fp_p</span> <span class="o">=</span> <span class="n">fp_par</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">align</span> <span class="o">=</span> <span class="s2">"justify"</span><span class="p">)))</span> <span class="o">%&gt;%</span>  <span class="c1"># ← tu texto justificado original</span>
+  
+  <span class="c1"># --- Sección 2: Números de Hill ---</span>
+  <span class="n">body_add_par</span><span class="p">(</span><span class="s2">"Curvas de números de Hill (iNEXT)"</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"heading 1"</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_img</span><span class="p">(</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hill_iNEXT.png"</span><span class="p">,</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mf">6.5</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"centered"</span>
+  <span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_par</span><span class="p">(</span><span class="s2">"Interpretación de los números de Hill"</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="s2">"heading 2"</span><span class="p">)</span> <span class="o">%&gt;%</span>
+  <span class="n">body_add_fpar</span><span class="p">(</span><span class="n">fpar</span><span class="p">(</span>
+    <span class="n">paste</span><span class="p">(</span><span class="n">texto_final</span><span class="p">,</span> <span class="n">collapse</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span>
+    <span class="n">fp_p</span> <span class="o">=</span> <span class="n">fp_par</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">align</span> <span class="o">=</span> <span class="s2">"justify"</span><span class="p">)</span>
+  <span class="p">))</span>  <span class="c1"># ← también justificado</span>
+
+<span class="c1"># --- Guardar el documento ---</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">target</span> <span class="o">=</span> <span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=44182b37">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="Mostrar-Informe-generado">Mostrar Informe generado<a class="anchor-link" href="#Mostrar-Informe-generado">¶</a></h3>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=20053e52">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [13]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#-------------Formatear archivo creado desde iNEXT-----------------</span>
+<span class="c1">#from docx2pdf import convert</span>
+<span class="c1">#convert(r"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx")</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">IFrame</span>
+<span class="n">IFrame</span><span class="p">(</span><span class="sa">r</span><span class="s2">"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.pdf"</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[13]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<iframe allowfullscreen="" frameborder="0" height="600" src="D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.pdf" width="900"></iframe>
 </div>
 </div>
 </div>
