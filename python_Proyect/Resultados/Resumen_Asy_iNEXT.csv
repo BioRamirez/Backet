@@ -1,4 +1,0 @@
-"Tipo","Observed","Estimator","Est_s.e.","95% Lower","95% Upper","Diferencia","Porcentaje_completitud","Conclusion"
-"Riqueza (q=0)",304,316.495854063018,8.93236858969755,298.988733330574,334.002974795462,12.4958540630182,96.0518111366697,"El muestreo fue suficiente; las curvas alcanzan una tendencia asintótica."
-"Diversidad de Shannon (q=1)",154.903756968744,163.834751449582,3.75061599014101,156.483679189066,171.185823710099,8.93099448083876,94.5487789362032,"El muestreo fue adecuado, aunque podrían registrarse algunas especies adicionales."
-"Diversidad de Simpson (q=2)",96.4183434274865,99.570586430575,3.57142666137667,92.5707188008506,106.570454060299,3.1522430030885,96.8341624609328,"El muestreo fue suficiente; las curvas alcanzan una tendencia asintótica."
