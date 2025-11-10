@@ -1,0 +1,4 @@
+⚠️ NOTA: El coeficiente de variación estimado para la distribución de incidencias es 0.836.
+Dado que CV > 0.5, existe alta heterogeneidad en la detectabilidad de las especies.
+➡️ Anne Chao recomienda **usar la versión clásica (Classic)** del estimador Chao2 en lugar de la bias-corrected.
+Posteriormente, compara los valores de **Chao2 clásico** y **ICE**, y reporta el mayor como mejor estimador de la riqueza basada en incidencias.
