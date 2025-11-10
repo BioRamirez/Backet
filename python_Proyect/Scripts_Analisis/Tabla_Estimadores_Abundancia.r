@@ -220,53 +220,13 @@ print(resumen_pivot)
 
 # --- Integrar resumen con resultados_wide ---
 
-resultados_Final <- left_join(resumen_pivot, resultados_wide,  by = "Unidad")
-
-
-# --- 4. Verificar estructura final ---
-glimpse(resultados_Final)
-
-
-library(openxlsx)
-write.xlsx(resultados_Final, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_SpadeR_Semanal_Wide.xlsx")
-cat("\n✅ Archivo exportado correctamente con los estimadores agrupados por semana.\n")
-
-
-
-#---------------------------------------------------------------------------------------
+resultados_Final <- left_join(resumen_pivot, resultados_wide, by = "Unidad")
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#----------------------------------Agregar Bootstraping-----------------------------------------------------
 
 library(boot)
 library(dplyr)
@@ -318,6 +278,39 @@ for (i in 1:ncol(matriz)) {
 bootstrap_total <- bind_rows(bootstrap_list)
 
 print(bootstrap_total)
+
+# --- Integrar con resultados_Final -------------------------------------------------------
+resultados_Final1 <- left_join(resultados_Final, bootstrap_total, by = "Unidad")
+
+# --- 4. Verificar estructura final ---
+glimpse(resultados_Final1)
+
+
+library(openxlsx)
+write.xlsx(resultados_Final1, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_SpadeR_Semanal_Wide.xlsx")
+cat("\n✅ Archivo exportado correctamente con los estimadores agrupados por semana.\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
