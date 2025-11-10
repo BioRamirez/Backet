@@ -4,7 +4,9 @@
 
 # 1️⃣ Verificar instalación de Git y Python
 git --version
+
 python --version
+
 
 # 2️⃣ Crear entorno virtual (solo la primera vez)
 python -m venv .venv
