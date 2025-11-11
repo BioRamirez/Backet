@@ -1,6 +1,13 @@
 import pandas as pd
 import openpyxl
 
+# Ruta del archivo
+ruta = r"D:\CORPONOR 2025\Backet\python_Proyect\data\POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx"
+
+# Leer el archivo Excel
+Registros = pd.read_excel(ruta)
+
+
 # --- Paso 1. Asegurar formato de fecha ---
 Registros['FECHA'] = pd.to_datetime(Registros['FECHA'])
 
@@ -25,7 +32,3 @@ print('✅ Tabla de abundancia creada y guardada en:', ruta_salida)
 print('\\nVista previa:')
 print(tabla_abundancia.head())
 
-
-#-------------Formatear archivo creado desde iNEXT-----------------
-from docx2pdf import convert
-convert(r"D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx")

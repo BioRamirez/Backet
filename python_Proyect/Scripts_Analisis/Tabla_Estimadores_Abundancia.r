@@ -287,6 +287,6 @@ glimpse(resultados_Final1)
 
 
 library(openxlsx)
-write.xlsx(resultados_Final1, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_SpadeR_Semanal_Wide.xlsx")
+write.xlsx(resultados_Final1, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_Abundancia.xlsx")
 cat("\n✅ Archivo exportado correctamente con los estimadores agrupados por semana.\n")
 
