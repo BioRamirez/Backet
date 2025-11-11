@@ -129,6 +129,7 @@ resumen
 #-----------------------Guardar tabla de efectividad-----------------------#
 
 ruta_salida = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Efectividad_Estimadores_Frec.xlsx"
+
 with pd.ExcelWriter(ruta_salida, engine='openpyxl') as writer:
     efectividad.to_excel(writer, sheet_name='Por_Unidad', index=False)
     resumen.to_excel(writer, sheet_name='Resumen_Efectividad', index=False)
@@ -195,7 +196,7 @@ if 'Singletons_SD' in tabla_frec.columns:
 # --- Ajustes automáticos del gráfico ---
 ax.set_xlim(0.5, len(x) + 0.8)  # deja espacio a la derecha para etiquetas
 ax.margins(y=0.1)               # ajusta el alto para evitar cortes
-plt.title("Curva de acumulación de especies")
+plt.title("Curva de acumulación de especies - Basada en Incidencias", fontsize=14)
 plt.xlabel("Unidades de muestreo")
 plt.ylabel("Riqueza estimada")
 plt.legend()

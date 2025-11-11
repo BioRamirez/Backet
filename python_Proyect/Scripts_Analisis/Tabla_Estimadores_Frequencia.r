@@ -36,7 +36,7 @@ sum(is.na(matriz))
 # Valores ya calculados necesarios para estimadores de incidencia cuando la variacion es baja---------
 
 # --- Cargar datos ed abundancia ---
-ruta <- "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_SpadeR_Semanal_Wide.xlsx"
+ruta <- "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_Abundancia.xlsx"
 datos_abundancia <- read_excel(ruta, sheet = 1)
 
 
@@ -111,10 +111,7 @@ for (i in seq_len(ncol(matriz))) {
   
   tabla$Estimador <- trimws(as.character(tabla$Estimador))
   
-  # 🔁 Reemplazar NA en Estimate por Observadas solo donde falta
-  #tabla <- tabla %>%
-  #  mutate(Estimate = ifelse(is.na(Estimate), Observadas, Estimate))
-  
+
   resultados_list[[i]] <- tabla
 }
 
@@ -214,14 +211,17 @@ view(datos_abundancia)
 str(datos_abundancia)
 
 
-
 library(dplyr)
 library(stringr)
 
-# Copia de seguridad
+# ============================
+# 1️⃣ Copia de seguridad
+# ============================
 datos_frecuencia_mod <- datos_frecuencia
 
-# Unir las columnas de Observadas desde datos_abundancia según la Unidad
+# ============================
+# 2️⃣ Unir los valores observados
+# ============================
 datos_frecuencia_mod <- datos_frecuencia_mod %>%
   left_join(
     datos_abundancia %>%
@@ -229,52 +229,61 @@ datos_frecuencia_mod <- datos_frecuencia_mod %>%
     by = "Unidad"
   )
 
-#-------------Los datos en este caso se cambian para las uniaddes 1, 2 y 3 pero en realidad debe cambiarse------
-#-------------para cuando los datos dean igual a NAs--------------------
-
-
-# Unidades a evaluar
-unidades_reemplazar <- c("Unidad1", "Unidad2", "Unidad3")
-
-# Columnas que deben ser modificadas (todas las que terminan en Low, Mean, SD o Upp)
+# ============================
+# 3️⃣ Reemplazar valores NA de la primera unidad por los observados
+#     (primer código nuevo)
+# ============================
 cols_estimadores <- names(datos_frecuencia_mod)[str_detect(names(datos_frecuencia_mod), "(_Low|_Mean|_SD|_Upp)$")]
 
-# --- Reemplazo condicional ---
-for (unidad in unidades_reemplazar) {
-  # Buscar fila correspondiente en ambos data frames
-  fila_freq <- which(datos_frecuencia_mod$Unidad == unidad)
-  fila_abun <- which(datos_abundancia$Unidad == unidad)
-  
-  if (length(fila_freq) > 0 && length(fila_abun) > 0) {
-    for (col in cols_estimadores) {
-      # Solo reemplazar si el valor actual es NA
-      if (is.na(datos_frecuencia_mod[[col]][fila_freq])) {
-        if (str_detect(col, "_Low$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Low[fila_abun]
-        } else if (str_detect(col, "_Mean$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Mean[fila_abun]
-        } else if (str_detect(col, "_SD$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_SD[fila_abun]
-        } else if (str_detect(col, "_Upp$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Upp[fila_abun]
-        }
-      }
+for (col in cols_estimadores) {
+  # Si la Unidad1 tiene NA, reemplazar por los valores observados equivalentes
+  if (is.na(datos_frecuencia_mod[[col]][datos_frecuencia_mod$Unidad == "Unidad1"])) {
+    if (str_detect(col, "_Low$")) {
+      datos_frecuencia_mod[[col]][datos_frecuencia_mod$Unidad == "Unidad1"] <-
+        datos_frecuencia_mod$Observadas_Low[datos_frecuencia_mod$Unidad == "Unidad1"]
+    } else if (str_detect(col, "_Mean$")) {
+      datos_frecuencia_mod[[col]][datos_frecuencia_mod$Unidad == "Unidad1"] <-
+        datos_frecuencia_mod$Observadas_Mean[datos_frecuencia_mod$Unidad == "Unidad1"]
+    } else if (str_detect(col, "_SD$")) {
+      datos_frecuencia_mod[[col]][datos_frecuencia_mod$Unidad == "Unidad1"] <-
+        datos_frecuencia_mod$Observadas_SD[datos_frecuencia_mod$Unidad == "Unidad1"]
+    } else if (str_detect(col, "_Upp$")) {
+      datos_frecuencia_mod[[col]][datos_frecuencia_mod$Unidad == "Unidad1"] <-
+        datos_frecuencia_mod$Observadas_Upp[datos_frecuencia_mod$Unidad == "Unidad1"]
     }
   }
 }
 
+# ============================
+# 4️⃣ Interpolación condicional
+#     (segundo código nuevo: interpola valores NA a partir de la segunda unidad)
+# ============================
+for (col in cols_estimadores) {
+  valores <- datos_frecuencia_mod[[col]]
+  if (any(is.na(valores))) {
+    # Interpola los NA usando linealmente las unidades con datos
+    indices <- which(!is.na(valores))
+    if (length(indices) >= 2) {
+      datos_frecuencia_mod[[col]] <- approx(
+        x = indices,
+        y = valores[indices],
+        xout = seq_along(valores),
+        method = "linear",
+        rule = 2
+      )$y
+    }
+  }
+}
 
-
-
-# --- Verificación rápida ---
+# ============================
+# 5️⃣ Verificación final
+# ============================
 datos_frecuencia_mod %>%
-  filter(Unidad %in% unidades_reemplazar) %>%
   select(Unidad, starts_with("Homogeneous_Model")) %>%
   print()
 
-view(datos_frecuencia_mod)
+View(datos_frecuencia_mod)
 
-names(datos_frecuencia_mod)
 # --- Reordenar columnas de datos_frecuencia_mod por sufijo (Low, Mean, SD, Upp) ---
 
 library(stringr)
@@ -317,10 +326,7 @@ view(datos_frecuencia_mod)
 library(dplyr)
 library(purrr)
 
-# Suponiendo que tu matriz de incidencia se llama "matriz"
-# (filas = especies, columnas = unidades)
-# y que ya usaste la misma estructura para tus otros acumulados
-
+# --- Cálculo de acumulados incluyendo Low, Mean, SD, Upp para Singletons y Doubletons ---
 resultados_acumulados <- map_dfr(1:ncol(matriz), function(i) {
   # Submatriz acumulada hasta la unidad i
   submatriz <- matriz[, 1:i, drop = FALSE]
@@ -332,27 +338,49 @@ resultados_acumulados <- map_dfr(1:ncol(matriz), function(i) {
   Q1 <- sum(incidencias == 1)
   Q2 <- sum(incidencias == 2)
   
-  # Bootstrap richness estimator (de acuerdo a fórmula clásica de incidence data)
+  # Número de especies observadas
+  t <- sum(incidencias > 0)
+  
+  # Parámetros para Bootstrap
   n <- ncol(submatriz)
-  t <- sum(incidencias > 0)  # número de especies observadas
-  p1 <- Q1 / n               # proporción de especies que ocurren una sola vez
-  bootstrap_mean <- t + p1 * (1 - p1 / n)  # estimador promedio (aproximación)
+  p1 <- Q1 / n
   
-  # Asumimos un 5% de error relativo para generar SD e intervalos (solo referencia)
+  # --- Bootstrap ---
+  bootstrap_mean <- t + p1 * (1 - p1 / n)
   bootstrap_sd <- bootstrap_mean * 0.05
-  low <- bootstrap_mean - 1.96 * bootstrap_sd
-  upp <- bootstrap_mean + 1.96 * bootstrap_sd
+  bootstrap_low <- bootstrap_mean - 1.96 * bootstrap_sd
+  bootstrap_upp <- bootstrap_mean + 1.96 * bootstrap_sd
   
+  # --- Agregar error estimado para singletons y doubletons ---
+  # Usamos una aproximación del 5% del valor como SD (mismo criterio de referencia)
+  sing_sd <- Q1 * 0.05
+  sing_low <- Q1 - 1.96 * sing_sd
+  sing_upp <- Q1 + 1.96 * sing_sd
+  
+  doub_sd <- Q2 * 0.05
+  doub_low <- Q2 - 1.96 * doub_sd
+  doub_upp <- Q2 + 1.96 * doub_sd
+  
+  # --- Resultado acumulado ---
   tibble(
     Unidad = i,
-    Singletons = Q1,
-    Doubletons = Q2,
-    Bootstrap_Low = low,
+    Singletons_Low = sing_low,
+    Singletons_Mean = Q1,
+    Singletons_SD = sing_sd,
+    Singletons_Upp = sing_upp,
+    
+    Doubletons_Low = doub_low,
+    Doubletons_Mean = Q2,
+    Doubletons_SD = doub_sd,
+    Doubletons_Upp = doub_upp,
+    
+    Bootstrap_Low = bootstrap_low,
     Bootstrap_Mean = bootstrap_mean,
     Bootstrap_SD = bootstrap_sd,
-    Bootstrap_Upp = upp
+    Bootstrap_Upp = bootstrap_upp
   )
 })
+
 
 # --- Convertir a formato de columnas (una por estimador acumulado) ---
 # Similar a tus otros resultados en datos_frecuencia_mod
@@ -371,50 +399,79 @@ print(datos_frecuencia_mod)
 
 datos_frecuencia_mod <- datos_frecuencia_mod %>%
   select(Unidad, Observadas, Observadas_Low, Observadas_Mean, Observadas_SD, Observadas_Upp,
-   Singletons, Doubletons, everything())
+   Singletons_Low, Singletons_Mean, Singletons_SD, Singletons_Upp, Doubletons_Low, Doubletons_Mean,
+   Doubletons_SD, Doubletons_Upp, everything())
 
 # Verificar orden
 colnames(datos_frecuencia_mod)
 
 #----------------------------------Manejar valores negativos en los estimadores de frecuencia -----------------------
+library(dplyr)
+library(stringr)
+library(zoo)  # para interpolación
 
-# Unidades a evaluar
-unidades_reemplazar <- c(datos_frecuencia_mod$Unidad)
+# --- Copia de seguridad ---
+datos_frecuencia_mod_cor <- datos_frecuencia_mod
 
-# Columnas que deben ser modificadas (todas las que terminan en Low, Mean, SD o Upp)
-cols_estimadores <- names(datos_frecuencia_mod)[str_detect(names(datos_frecuencia_mod), "(_Low|_Mean|_SD|_Upp)$")]
+# --- Columnas de estimadores a evaluar ---
+cols_estimadores <- names(datos_frecuencia_mod_cor)[
+  str_detect(names(datos_frecuencia_mod_cor), "(_Low|_Mean|_SD|_Upp)$")
+]
 
-# --- Reemplazo condicional para valores negativos ---
-for (unidad in unidades_reemplazar) {
-  # Buscar fila correspondiente en ambos data frames
-  fila_freq <- which(datos_frecuencia_mod$Unidad == unidad)
-  fila_abun <- which(datos_abundancia$Unidad == unidad)
+# --- Aplicar corrección columna por columna ---
+for (col in cols_estimadores) {
   
-  if (length(fila_freq) > 0 && length(fila_abun) > 0) {
-    for (col in cols_estimadores) {
-      valor_actual <- datos_frecuencia_mod[[col]][fila_freq]
+  # Extraer los valores actuales de esa columna
+  valores <- datos_frecuencia_mod_cor[[col]]
+  
+  # Detectar índices de valores negativos
+  negativos <- which(valores < 0)
+  
+  if (length(negativos) > 0) {
+    # Si hay valores negativos:
+    
+    # --- 1️⃣ Si el primer valor es negativo, reemplazarlo por el observado correspondiente ---
+    if (negativos[1] == 1) {
+      unidad1 <- datos_frecuencia_mod_cor$Unidad[1]
+      fila_abun <- which(datos_abundancia$Unidad == unidad1)
       
-      # Solo reemplazar si el valor actual es negativo
-      if (!is.na(valor_actual) && valor_actual < 0) {
+      if (length(fila_abun) > 0) {
         if (str_detect(col, "_Low$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Low[fila_abun]
+          valores[1] <- datos_abundancia$Observadas_Low[fila_abun]
         } else if (str_detect(col, "_Mean$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Mean[fila_abun]
+          valores[1] <- datos_abundancia$Observadas_Mean[fila_abun]
         } else if (str_detect(col, "_SD$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_SD[fila_abun]
+          valores[1] <- datos_abundancia$Observadas_SD[fila_abun]
         } else if (str_detect(col, "_Upp$")) {
-          datos_frecuencia_mod[[col]][fila_freq] <- datos_abundancia$Observadas_Upp[fila_abun]
+          valores[1] <- datos_abundancia$Observadas_Upp[fila_abun]
         }
       }
     }
+    
+    # --- 2️⃣ Para los valores negativos posteriores, interpolar linealmente ---
+    # Los valores positivos se mantienen, los negativos se reemplazan con NA
+    valores_interp <- valores
+    valores_interp[valores_interp < 0] <- NA
+    
+    # Interpolación lineal solo donde existan valores positivos
+    valores_interp <- na.approx(valores_interp, na.rm = FALSE)
+    
+    # Reemplazar en el data frame corregido
+    datos_frecuencia_mod_cor[[col]] <- valores_interp
   }
 }
+
+# --- Verificación ---
+datos_frecuencia_mod_cor %>%
+  select(Unidad, starts_with("Homogeneous_Model")) %>%
+  print()
 
 #-------------------------Imprimir documento--------------------
 
 
 library(openxlsx)
-write.xlsx(datos_frecuencia_mod, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_frecuencia.xlsx")
+
+write.xlsx(datos_frecuencia_mod_cor, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Estimadores_frecuencia.xlsx")
 cat("\n✅ Archivo exportado correctamente con los estimadores agrupados por semana.\n")
 
 

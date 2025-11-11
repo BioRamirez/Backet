@@ -189,7 +189,7 @@ if 'Singletons_SD' in tabla_Abund.columns:
 # --- Ajustes automáticos del gráfico ---
 ax.set_xlim(0.5, len(x) + 0.8)  # deja espacio a la derecha para etiquetas
 ax.margins(y=0.1)               # ajusta el alto para evitar cortes
-plt.title("Curva de acumulación de especies")
+plt.title("Curva de acumulación de especies - Basada en Abundancias", fontsize=14)
 plt.xlabel("Unidades de muestreo")
 plt.ylabel("Riqueza estimada")
 plt.legend()
