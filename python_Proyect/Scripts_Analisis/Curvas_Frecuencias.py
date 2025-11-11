@@ -127,6 +127,41 @@ resumen = (
 resumen = resumen.sort_values(by='Efectividad_Promedio_%', ascending=False)
 resumen
 
+# --- Seleccionar los dos mejores estimadores según efectividad ---
+resumen = resumen.sort_values(by='Efectividad_Promedio_%', ascending=False)
+
+import pandas as pd
+
+# --- Agrupar por tipo de estimador y obtener el de mayor efectividad ---
+resumen['Grupo'] = resumen['Estimador'].apply(
+    lambda x: (
+        'Chao' if 'Chao' in x else
+        'ACE' if 'ACE' in x else
+        'Jackknife' if 'jackknife' in x.lower() else
+        'Bootstrap' if 'Bootstrap' in x else
+        'ICE' if 'ICE' in x else
+        'Otro'
+    )
+)
+
+# --- Seleccionar el mejor (mayor efectividad) por grupo ---
+mejores_por_grupo = (
+    resumen.sort_values(by='Efectividad_Promedio_%', ascending=False)
+           .groupby('Grupo')
+           .head(1)   # uno por grupo
+           .reset_index(drop=True)
+)
+
+# --- Ajustar nombres al formato de las columnas de la tabla de datos ---
+top_estimadores = mejores_por_grupo['Estimador'].str.replace('_Efectividad_%', '_Mean').tolist()
+
+resumen = pd.DataFrame(mejores_por_grupo)
+
+print("🏆 Mejores estimadores por grupo:")
+print(mejores_por_grupo[['Grupo', 'Estimador', 'Efectividad_Promedio_%']])
+print("\n📊 Nombres finales para graficar:", top_estimadores)
+
+
 #-----------------------Fin Calcular efectividad de los estimadores de abundancia-----------------------#
 #-----------------------Guardar tabla de efectividad-----------------------#
 
@@ -140,80 +175,7 @@ print("✅ Tabla de efectividad exportada correctamente.")
 
 #-----------------------Fin Guardar tabla de efectividad-----------------------#
 #-----------------------Graficar curvas de acumulacion de especies-----------------------#
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-# --- Escoger los dos mejores estimadores ---
-top2 = resumen['Estimador'].head(3).str.replace('_Efectividad_%', '_Mean').tolist()
-print("📊 Mejores estimadores:", top2)
-
-# --- Crear figura ---
-fig, ax = plt.subplots(figsize=(10, 6))
-
-# Eje X dinámico según número de unidades
-x = np.arange(1, len(tabla_frec) + 1)
-
-# --- Función automática de etiquetado sin solapamientos ---
-etiquetas_previas = []
-
-def colocar_etiqueta_automatica(x_val, y_val, texto, ax):
-    """Ubica etiquetas sin solaparse y dentro de los límites del gráfico."""
-    ymin, ymax = ax.get_ylim()
-    offset = (ymax - ymin) * 0.05  # desplazamiento dinámico: 3% del rango
-
-    for y_prev in etiquetas_previas:
-        if abs(y_prev - y_val) < offset:
-            y_val += offset
-    etiquetas_previas.append(y_val)
-
-    # Limitar dentro del eje
-    y_val = np.clip(y_val, ymin + offset, ymax - offset)
-    x_val = min(x_val, ax.get_xlim()[1] - 0.5)
-
-    # Texto sin fondo, ligeramente a la derecha del punto
-    ax.text(x_val + 0.2, y_val, f"{float(texto):.1f}",
-            fontsize=9, ha='left', va='center', color='black')
-
-
-# --- Dibujar observadas ---
-ax.plot(x, tabla_frec['Observadas_Mean'], 'o-', color='black', label='Observadas')
-colocar_etiqueta_automatica(x[-1], tabla_frec['Observadas_Mean'].iloc[-1],
-                            tabla_frec['Observadas_Mean'].iloc[-1], ax)
-
-# --- Dibujar los dos mejores estimadores ---
-for est in top2:
-    ax.plot(x, tabla_frec[est], 'o--', label=est.replace('_Mean', ''))
-    colocar_etiqueta_automatica(x[-1], tabla_frec[est].iloc[-1],
-                                tabla_frec[est].iloc[-1], ax)
-
-# --- Dibujar desviación estándar de Singletons ---
-if 'Singletons_SD' in tabla_frec.columns:
-    ax.plot(x, tabla_frec['Singletons_SD'], 'o--', color='gray', linewidth=2,
-            label='Singletons_SD')
-    colocar_etiqueta_automatica(x[-1], tabla_frec['Singletons_SD'].iloc[-1],
-                                tabla_frec['Singletons_SD'].iloc[-1], ax)
-
-# --- Ajustes automáticos del gráfico ---
-ax.set_xlim(0.5, len(x) + 0.8)  # deja espacio a la derecha para etiquetas
-ax.margins(y=0.1)               # ajusta el alto para evitar cortes
-plt.title("Curva de acumulación de especies - Basada en Incidencias", fontsize=14)
-plt.xlabel("Unidades de muestreo")
-plt.ylabel("Riqueza estimada")
-plt.legend()
-plt.grid(True, linestyle='--', alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-
-
-
-
-
-
-
-
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -286,53 +248,7 @@ plt.legend()
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#-----------------------Fin Ajustes automáticos del gráfico -----------------------#
 
 # --- Guardar la gráfica en formato PNG ---
 fig.savefig("D:/CORPONOR 2025/Backet/python_Proyect/Resultados/estimadores_riqueza_Frec.png",
