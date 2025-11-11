@@ -189,7 +189,7 @@ print(resumen_asy)
 # ======================================
 grafico_inext <- ggiNEXT(inext_todos, type = 1, se = TRUE, color.var = "Order.q") +
   labs(
-    title = "Curvas de Diversidad de Hill (q = 0, 1, 2)",
+    title = "Curvas de Diversidad de Hills (q = 0, 1, 2)",
     subtitle = "Riqueza observada, interpolada y extrapolada con intervalos de confianza (95%)",
     x = "Número de individuos (m)",
     y = "Número efectivo de especies (qD)",
@@ -224,7 +224,7 @@ print(interpretacion2)
 # 📝 5. Generar texto interpretativo automático
 # ======================================
 texto_interpretacion <- glue(
-  "🔹 En el análisis de diversidad basado en números de Hill:
+  "🔹 En el análisis de diversidad basado en números de Hills:
   
   - Para q = 0 (riqueza de especies), se observaron {round(interpretacion2$Observed[1],1)} especies,
     con una estimación asintótica de {round(interpretacion2$Estimator[1],1)} ± {round(interpretacion2$Est_s.e.[1],2)}.
@@ -249,7 +249,7 @@ cat(texto_interpretacion)
 # 💾 6. Guardar resultados
 # ======================================
 
-ggsave("D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hill_iNEXT.png",
+ggsave("D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hills_iNEXT.png",
        plot = grafico_inext, width = 8, height = 6, dpi = 300,
   bg = "white"   # 👈 asegura fondo blanco
 )
@@ -275,12 +275,12 @@ doc <- read_docx() %>%
   body_add_fpar(fpar(interpretacion, fp_p = fp_par(text.align = "justify"))) %>%  # ← tu texto justificado original
   
   # --- Sección 2: Números de Hill ---
-  body_add_par("Curvas de números de Hill (iNEXT)", style = "heading 1") %>%
+  body_add_par("Curvas de números de Hills (iNEXT)", style = "heading 1") %>%
   body_add_img(
-    src = "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hill_iNEXT.png",
+    src = "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Grafico_Hills_iNEXT.png",
     width = 6.5, height = 4.5, style = "centered"
   ) %>%
-  body_add_par("Interpretación de los números de Hill", style = "heading 2") %>%
+  body_add_par("Interpretación de los números de Hills", style = "heading 2") %>%
   body_add_fpar(fpar(
     paste(texto_final, collapse = "\n"),
     fp_p = fp_par(text.align = "justify")
@@ -289,7 +289,6 @@ doc <- read_docx() %>%
 # --- Guardar el documento ---
 print(doc, target = "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Informe_Completo_iNEXT.docx")
 
-# --- Convertir a PDF usando Word (solo Windows) ---
-list.dirs("C:/Program Files", full.names = TRUE, recursive = FALSE)
+
 
 #----------------------Convertir el documento a pdf-----------------------------
