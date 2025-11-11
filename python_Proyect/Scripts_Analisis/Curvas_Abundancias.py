@@ -109,15 +109,15 @@ for est in estimadores:
         )
 
 # --- Calcular promedio total de efectividad por estimador ---
+# (último valor registrado en cada columna para cada estimador)
 resumen = (
-    efectividad.drop(columns=['Unidad', 'Observadas_Mean'])
-    .mean()
-    .reset_index()
-    .rename(columns={'index': 'Estimador', 0: 'Efectividad_Promedio_%'})
+    efectividad
+    .drop(columns=['Unidad', 'Observadas_Mean'])
+    .tail(1)  # ✅ toma la última fila (la efectividad final)
+    .melt(var_name='Estimador', value_name='Efectividad_Promedio_%')
+    .reset_index(drop=True)
 )
 
-resumen = resumen.sort_values(by='Efectividad_Promedio_%', ascending=False)
-resumen
 
 #-----------------------Fin Calcular efectividad de los estimadores de abundancia-----------------------#
 #-----------------------Guardar tabla de efectividad-----------------------#
@@ -196,6 +196,121 @@ plt.legend()
 plt.grid(True, linestyle='--', alpha=0.5)
 plt.tight_layout()
 plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# --- Escoger los dos mejores estimadores ---
+top2 = resumen['Estimador'].head(3).str.replace('_Efectividad_%', '_Mean').tolist()
+print("📊 Mejores estimadores:", top2)
+
+# --- Crear figura ---
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Eje X dinámico según número de unidades
+x = np.arange(1, len(tabla_Abund) + 1)
+
+# --- Función automática de etiquetado sin solapamientos ---
+etiquetas_previas = []
+
+def colocar_etiqueta_automatica(x_val, y_val, texto, ax):
+    ymin, ymax = ax.get_ylim()
+    offset = (ymax - ymin) * 0.05
+    for y_prev in etiquetas_previas:
+        if abs(y_prev - y_val) < offset:
+            y_val += offset
+    etiquetas_previas.append(y_val)
+    y_val = np.clip(y_val, ymin + offset, ymax - offset)
+    x_val = min(x_val, ax.get_xlim()[1] - 0.5)
+    ax.text(x_val + 0.2, y_val, f"{float(texto):.1f}",
+            fontsize=9, ha='left', va='center', color='black')
+
+
+# 🔹 1️⃣ Agrega este bloque justo antes de graficar “Observadas”
+# Calcula el número total observado
+n_obs = int(tabla_Abund['Observadas_Mean'].iloc[-1])
+
+# --- Dibujar observadas ---
+# 🔹 2️⃣ Cambia solo la etiqueta del label:
+ax.plot(x, tabla_Abund['Observadas_Mean'], 'o-', color='black',
+        label=f"Observadas ({n_obs} spp)")
+colocar_etiqueta_automatica(x[-1], tabla_Abund['Observadas_Mean'].iloc[-1],
+                            tabla_Abund['Observadas_Mean'].iloc[-1], ax)
+
+
+# --- Dibujar los dos mejores estimadores ---
+# 🔹 3️⃣ Aquí agregas la búsqueda de efectividad para cada estimador:
+for est in top2:
+    est_base = est.replace('_Mean', '_Efectividad_%')
+    efectividad = resumen.loc[resumen['Estimador'] == est_base, 'Efectividad_Promedio_%'].values
+    ef_txt = f" ({efectividad[0]:.1f}%)" if len(efectividad) > 0 else ""
+
+    # 🔹 4️⃣ Modifica el label para que incluya la efectividad
+    ax.plot(x, tabla_Abund[est], 'o--', label=est.replace('_Mean', '') + ef_txt)
+    colocar_etiqueta_automatica(x[-1], tabla_Abund[est].iloc[-1],
+                                tabla_Abund[est].iloc[-1], ax)
+
+
+# --- Dibujar desviación estándar de Singletons ---
+if 'Singletons_SD' in tabla_Abund.columns:
+    ax.plot(x, tabla_Abund['Singletons_SD'], 'o--', color='gray', linewidth=2,
+            label='Singletons_SD')
+    colocar_etiqueta_automatica(x[-1], tabla_Abund['Singletons_SD'].iloc[-1],
+                                tabla_Abund['Singletons_SD'].iloc[-1], ax)
+
+
+# --- Ajustes automáticos del gráfico ---
+ax.set_xlim(0.5, len(x) + 0.8)
+ax.margins(y=0.1)
+plt.title("Curva de acumulación de especies - Basada en Abundancias", fontsize=14)
+plt.xlabel("Unidades de muestreo")
+plt.ylabel("Riqueza estimada")
+plt.legend()
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # --- Guardar la gráfica en formato PNG ---
 fig.savefig("D:/CORPONOR 2025/Backet/python_Proyect/Resultados/estimadores_riqueza.png",
