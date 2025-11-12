@@ -241,7 +241,7 @@ if 'Singletons_SD' in tabla_frec.columns:
 # --- Ajustes automáticos del gráfico ---
 ax.set_xlim(0.5, len(x) + 0.8)
 ax.margins(y=0.1)
-plt.title("Curva de acumulación de especies - Basada en Abundancias", fontsize=14)
+plt.title("Curva de acumulación de especies - Basada en Incidencias", fontsize=14)
 plt.xlabel("Unidades de muestreo")
 plt.ylabel("Riqueza estimada")
 plt.legend()
