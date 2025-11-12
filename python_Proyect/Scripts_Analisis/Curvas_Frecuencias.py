@@ -174,6 +174,83 @@ with pd.ExcelWriter(ruta_salida, engine='openpyxl') as writer:
 print("✅ Tabla de efectividad exportada correctamente.")
 
 #-----------------------Fin Guardar tabla de efectividad-----------------------#
+#------------------Formaterar tabla de efectividad------------------#
+#---------------------------------- Reparar y formatear archivo de Resumen_estimadores_Frec -----------------------
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+import os
+
+# --- Rutas ---
+ruta_original = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Efectividad_Estimadores_Frec.xlsx"
+ruta_limpia = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Efectividad_Estimadores_Frec.xlsx"
+
+# --- Verificar existencia ---
+if not os.path.exists(ruta_original):
+    raise FileNotFoundError(f"⚠️ No se encontró el archivo: {ruta_original}")
+
+# --- Leer archivo dañado con pandas ---
+try:
+    df = pd.read_excel(ruta_original)
+    print("✅ Archivo leído correctamente con pandas.")
+except Exception as e:
+    raise RuntimeError(f"❌ No se pudo leer el archivo: {e}")
+
+# --- Reescribir el archivo limpio ---
+df.to_excel(ruta_limpia, index=False)
+print(f"🧹 Archivo reparado y guardado como:\n{ruta_limpia}")
+
+# --- Aplicar formato con openpyxl ---
+from openpyxl import load_workbook
+
+wb = load_workbook(ruta_limpia)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        cell.alignment = center_align
+        cell.border = thin_border
+
+# --- Encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        if cell.value:
+            length = len(str(cell.value))
+            if length > max_length:
+                max_length = length
+    ws.column_dimensions[column].width = max_length + 3
+
+# --- Ajustar altura de filas ---
+for row in ws.iter_rows():
+    ws.row_dimensions[row[0].row].height = 18
+
+# --- Guardar cambios ---
+wb.save(ruta_limpia)
+print(f'📘 Archivo formateado y reparado correctamente:\n{ruta_limpia}')
+#------------------Fin Formaterar tabla de efectividad------------------#
 #-----------------------Graficar curvas de acumulacion de especies-----------------------#
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -304,3 +381,80 @@ ruta_salida = "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/Resumen_estimad
 tabla_resumen.to_excel(ruta_salida, index=False)
 
 print(f"\n✅ Archivo Excel guardado en:\n{ruta_salida}")
+
+#-----------------------Fin Crear tabla resumen de estimadores-----------------------#
+#---------------------------------- Reparar y formatear archivo de Resumen_estimadores_Frec -----------------------
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+import os
+
+# --- Rutas ---
+ruta_original = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Resumen_estimadores_Frec.xlsx"
+ruta_limpia = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Resumen_estimadores_Frec.xlsx"
+
+# --- Verificar existencia ---
+if not os.path.exists(ruta_original):
+    raise FileNotFoundError(f"⚠️ No se encontró el archivo: {ruta_original}")
+
+# --- Leer archivo dañado con pandas ---
+try:
+    df = pd.read_excel(ruta_original)
+    print("✅ Archivo leído correctamente con pandas.")
+except Exception as e:
+    raise RuntimeError(f"❌ No se pudo leer el archivo: {e}")
+
+# --- Reescribir el archivo limpio ---
+df.to_excel(ruta_limpia, index=False)
+print(f"🧹 Archivo reparado y guardado como:\n{ruta_limpia}")
+
+# --- Aplicar formato con openpyxl ---
+from openpyxl import load_workbook
+
+wb = load_workbook(ruta_limpia)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        cell.alignment = center_align
+        cell.border = thin_border
+
+# --- Encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        if cell.value:
+            length = len(str(cell.value))
+            if length > max_length:
+                max_length = length
+    ws.column_dimensions[column].width = max_length + 3
+
+# --- Ajustar altura de filas ---
+for row in ws.iter_rows():
+    ws.row_dimensions[row[0].row].height = 18
+
+# --- Guardar cambios ---
+wb.save(ruta_limpia)
+print(f'📘 Archivo formateado y reparado correctamente:\n{ruta_limpia}')
