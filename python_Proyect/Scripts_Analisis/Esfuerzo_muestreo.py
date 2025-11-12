@@ -2,9 +2,7 @@
 
 # Si no las tienes instaladas, ejecuta esta celda una vez:
 # Salir del interprete con: exit() exit() python   pip install tabulate pandas numpy scipy scikit-bio openpyxl
-
-
-
+#
 # !pip install pandas numpy matplotlib tabulate openpyxl
 
 import pandas as pd
