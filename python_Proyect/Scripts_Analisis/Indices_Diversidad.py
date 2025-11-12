@@ -92,8 +92,13 @@ matriz_abundancia = Registros.pivot_table(
 print("✅ Matriz de abundancia creada:")
 print(matriz_abundancia.head())
 
-# --- 2. Función para calcular índices ecológicos ---
-def calcular_indices(abundancias):
+import numpy as np
+import pandas as pd
+from skbio.diversity.alpha import shannon, simpson
+from math import log, sqrt
+
+# --- 1. Función para calcular índices ecológicos con scikit-bio ---
+def calcular_indices_skbio(abundancias):
     abundancias = np.array(abundancias)
     N = abundancias.sum()
     S = np.count_nonzero(abundancias)
@@ -102,41 +107,43 @@ def calcular_indices(abundancias):
         return {
             'Riqueza (S)': 0,
             'Abundancia (N)': 0,
-            'Shannon (H\')': 0,
+            "Shannon (H')": 0,
             'Simpson (1-D)': 0,
             'Dominancia (D)': 0,
-            'Equidad (J\')': 0,
+            "Equidad (J')": 0,
             'Margalef (DMg)': 0,
             'Menhinick (DMn)': 0
         }
 
-    # Proporciones
-    p = abundancias / N
+    # Índices calculados con scikit-bio
+    H = shannon(abundancias, base=np.e)         # Diversidad de Shannon (H’)
+    D_simpson = simpson(abundancias)            # Dominancia de Simpson (D)
+    one_minus_D = 1 - D_simpson                 # Diversidad de Simpson (1 - D)
 
-    # Índices de diversidad
-    shannon = entropy(p, base=np.e)
-    simpson = 1 - np.sum(p**2)
-    dominancia = np.sum(p**2)
-    pielou = shannon / np.log(S)
-    margalef = (S - 1) / np.log(N)
-    menhinick = S / np.sqrt(N)
+    # Índices clásicos adicionales
+    J = H / log(S)                              # Equidad de Pielou (J’)
+    DMg = (S - 1) / log(N)                      # Índice de Margalef
+    DMn = S / sqrt(N)                           # Índice de Menhinick
 
     return {
         'Riqueza (S)': S,
         'Abundancia (N)': N,
-        'Shannon (H\')': shannon,
-        'Simpson (1-D)': simpson,
-        'Dominancia (D)': dominancia,
-        'Equidad (J\')': pielou,
-        'Margalef (DMg)': margalef,
-        'Menhinick (DMn)': menhinick
+        "Shannon (H')": H,
+        'Simpson (1-D)': one_minus_D,
+        'Dominancia (D)': D_simpson,
+        "Equidad (J')": J,
+        'Margalef (DMg)': DMg,
+        'Menhinick (DMn)': DMn
     }
 
-# --- 3. Calcular índices por cobertura ---
+# --- 2. Aplicar la función por cobertura ---
+calcular_indices = calcular_indices_skbio
+
 indices_diversidad = matriz_abundancia.apply(calcular_indices, axis=1, result_type='expand')
 
-print("\n📊 Índices de diversidad por cobertura:")
+print("\n📊 Índices de diversidad por cobertura (basados en scikit-bio):")
 print(indices_diversidad)
+
 
 
 # --- 4. Calcular índices totales (todas las coberturas combinadas) ---
@@ -406,5 +413,74 @@ print(f"✅ Archivo con tabla e interpretación guardado en:\n{ruta_salida}")
 
 #----------------------------Fin del codigo----------------------------
 
+#------------------Validar calculos con scikit-bio------------------------------
+ # --- 2. Función para calcular índices ecológicos ---
+def calcular_indices(abundancias):
+    abundancias = np.array(abundancias)
+    N = abundancias.sum()
+    S = np.count_nonzero(abundancias)
+    
+    if N == 0 or S == 0:
+        return {
+            'Riqueza (S)': 0,
+            'Abundancia (N)': 0,
+            'Shannon (H\')': 0,
+            'Simpson (1-D)': 0,
+            'Dominancia (D)': 0,
+            'Equidad (J\')': 0,
+            'Margalef (DMg)': 0,
+            'Menhinick (DMn)': 0
+        }
 
+    # Proporciones
+    p = abundancias / N
+
+    # Índices de diversidad
+    shannon = entropy(p, base=np.e)
+    simpson = 1 - np.sum(p**2)
+    dominancia = np.sum(p**2)
+    pielou = shannon / np.log(S)
+    margalef = (S - 1) / np.log(N)
+    menhinick = S / np.sqrt(N)
+
+    return {
+        'Riqueza (S)': S,
+        'Abundancia (N)': N,
+        'Shannon (H\')': shannon,
+        'Simpson (1-D)': simpson,
+        'Dominancia (D)': dominancia,
+        'Equidad (J\')': pielou,
+        'Margalef (DMg)': margalef,
+        'Menhinick (DMn)': menhinick
+    }
+
+# --- 3. Calcular índices por cobertura ---
+indices_diversidad2 = matriz_abundancia.apply(calcular_indices, axis=1, result_type='expand')
+
+print("\n📊 Índices de diversidad por cobertura:")
+print(indices_diversidad2)
+
+# assumes matriz_abundancia: rows=coberturas, cols=especies (enteros)
+from skbio.diversity import alpha_diversity
+import numpy as np
+from scipy.stats import entropy
+
+# preparar datos
+counts = matriz_abundancia.values  # array shape (n_samples, n_species)
+ids = matriz_abundancia.index.astype(str).tolist()
+
+# calcular con scikit-bio
+shannon_skbio = alpha_diversity('shannon', counts, ids=ids)   # devuelve H' (base e)
+simpson_skbio = alpha_diversity('simpson', counts, ids=ids)   # ojo: devuelve D = sum p^2 en algunas versiones
+
+# calcular con tu implementación (ejemplo para Shannon y Simpson 1-D)
+shannon_manual = matriz_abundancia.apply(lambda row: entropy(row / row.sum(), base=np.e), axis=1)
+simpson_manual = matriz_abundancia.apply(lambda row: 1 - np.sum((row / row.sum())**2), axis=1)
+
+# comparar (tolerancia numérica)
+print("Shannon equal:", np.allclose(shannon_manual.values, shannon_skbio.values, atol=1e-8))
+# Para Simpson, comprobar si scikit-bio devuelve D o 1-D:
+print("Simpson manual sample:", simpson_manual.iloc[0])
+print("Simpson scikit-bio sample:", simpson_skbio.values[0])
+# Si scikit-bio devuelve D = sum p^2, entonces 1 - simpson_skbio == simpson_manual
 
