@@ -224,3 +224,30 @@ plt.show()
 
 print("🏆 Ranking de coberturas según diversidad:")
 print(ranking_div[['Índice_compuesto']].round(3))
+
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(9, 5))
+sns.barplot(
+    x=ranking_div.index, 
+    y=ranking_div['Índice_compuesto'], 
+    palette="viridis"
+)
+
+plt.title("Prioridad de conservación según diversidad de Fauna", fontsize=14, fontweight='bold')
+plt.xlabel("Cobertura")
+plt.ylabel("Índice compuesto de diversidad (0–1)")
+plt.xticks(rotation=45, ha='right')  # 🔹 Rota etiquetas si son largas
+plt.tight_layout()
+
+plt.savefig(
+    r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Prioridad_Conservacion.png", 
+    dpi=300, 
+    bbox_inches='tight'
+)
+plt.show()
+
+print("🏆 Ranking de coberturas según diversidad:")
+print(ranking_div[['Índice_compuesto']].round(3))
