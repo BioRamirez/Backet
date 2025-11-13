@@ -1,5 +1,6 @@
 
 #--------------## Cargar librerias necesarias------------------------------
+import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,6 +8,9 @@ import seaborn as sns
 from tabulate import tabulate
 import openpyxl
 
+# Carpeta donde guardarás los gráficos (solo una vez)
+output_folder = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados"
+os.makedirs(output_folder, exist_ok=True)
 #--------------## Leer archivo y revisar columnas------------------------------
 # Ruta del archivo
 ruta = r"D:\CORPONOR 2025\Backet\python_Proyect\data\POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx"
@@ -117,6 +121,94 @@ for cobertura, df in abund_cob.groupby("COBERTURA"):
 # --- 7. Unir todas las curvas ---
 curvas_df = pd.concat(curvas, ignore_index=True)
 
+# --- 8. Exportar a Excel ---
+ruta_salida_xlsx = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Curvas_Rango_Abundancia.xlsx"
+
+# Exportar el DataFrame a Excel
+curvas_df.to_excel(ruta_salida_xlsx, index=False)
+
+print(f"✅ Archivo Excel exportado exitosamente en: {ruta_salida_xlsx}")
+
+#---------------------------Dar formato a tabla curvas rango-abundancia por cobertura----------------------------
+#---------------------------------- Reparar y formatear archivo de Curvas_Rango_Abundancia -----------------------
+import pandas as pd
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+import os
+
+# --- Rutas ---
+ruta_original = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Curvas_Rango_Abundancia.xlsx"
+ruta_limpia = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados\Curvas_Rango_Abundancia.xlsx"
+
+# --- Verificar existencia ---
+if not os.path.exists(ruta_original):
+    raise FileNotFoundError(f"⚠️ No se encontró el archivo: {ruta_original}")
+
+# --- Leer archivo dañado con pandas ---
+try:
+    df = pd.read_excel(ruta_original)
+    print("✅ Archivo leído correctamente con pandas.")
+except Exception as e:
+    raise RuntimeError(f"❌ No se pudo leer el archivo: {e}")
+
+# --- Reescribir el archivo limpio ---
+df.to_excel(ruta_limpia, index=False)
+print(f"🧹 Archivo reparado y guardado como:\n{ruta_limpia}")
+
+# --- Aplicar formato con openpyxl ---
+from openpyxl import load_workbook
+
+wb = load_workbook(ruta_limpia)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        cell.alignment = center_align
+        cell.border = thin_border
+
+# --- Encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        if cell.value:
+            length = len(str(cell.value))
+            if length > max_length:
+                max_length = length
+    ws.column_dimensions[column].width = max_length + 3
+
+# --- Ajustar altura de filas ---
+for row in ws.iter_rows():
+    ws.row_dimensions[row[0].row].height = 18
+
+# --- Guardar cambios ---
+wb.save(ruta_limpia)
+print(f'📘 Archivo formateado y reparado correctamente:\n{ruta_limpia}')
+
+
+
+
 # --- 8. Graficar ---
 
 
@@ -129,6 +221,10 @@ abundancia_por_cobertura = (
 
 # --- 2. Ordenar coberturas (TOTAL primero si existe) ---
 orden_coberturas = ["TOTAL"] + [c for c in abundancia_por_cobertura.index if c != "TOTAL"]
+
+# --- Calcular límites globales del eje Y ---
+ymin = curvas_df["LOG10_ABUND"].min() - 0.2
+ymax = curvas_df["LOG10_ABUND"].max() + 0.2
 
 # --- 3. Crear figura (una columna por cobertura) ---
 fig, axes = plt.subplots(1, len(orden_coberturas), figsize=(4 * len(orden_coberturas), 5), sharey=True)
@@ -170,643 +266,420 @@ for i, (ax, cobertura) in enumerate(zip(axes, orden_coberturas)):
 # --- 6. Ajustes finales y visualización ---
 plt.suptitle("Curvas rango-abundancia por cobertura", fontsize=14, fontweight="bold")
 plt.tight_layout(rect=[0, 0, 1, 0.95])
+
 plt.show()
 
 
-#-----------------------------fin del script-----------------------------
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#-------------------Segundo grafico curvas rango-abundancia--------------------
-
+#-------------------grafico curvas rango-abundancia estilo publicación--------------------
 
 import matplotlib.pyplot as plt
 import numpy as np
+from adjustText import adjust_text
 
-# --- Asegúrate de tener 'curvas_df' con columnas: ESPECIE, COBERTURA, RANGO, LOG10_ABUND ---
-# --- Si tus columnas están en mayúsculas, úsalo tal cual; si no, adáptalo. ---
-
+#----------------------------------- FUNCIÓN PARA ABREVIAR NOMBRES -----------------------------------
 def abreviar_nombre(nombre):
-    partes = str(nombre).split()
+    """Convierte 'Chlorophanes atratus' → 'C. atratus'."""
+    partes = nombre.split()
     if len(partes) >= 2:
         return f"{partes[0][0]}. {partes[1]}"
     else:
         return nombre
 
-def plot_curvas_grid(curvas_df, ncols=3, figsize_per_col=(4,5)):
+#----------------------------------- FUNCIÓN PRINCIPAL -----------------------------------
+def plot_curvas_comparativas_estilo(curvas_df, figsize=(12, 7)):
     """
-    Dibuja las curvas rango-abundancia en una grilla con ncols columnas.
-    ncols: 1 (apiladas), 2 o 3 (u otro valor entero)
-    figsize_per_col: tupla (ancho, alto) para cada columna
+    Dibuja curvas rango-abundancia desplazadas horizontalmente,
+    con etiquetas ajustadas automáticamente (sin solapamientos)
+    y estilo limpio tipo publicación.
     """
-    # ordenar coberturas (TOTAL primero si existe)
-    abundancia_por_cobertura = curvas_df.groupby("COBERTURA")["INDIVIDUOS"].sum().sort_values(ascending=False)
-    orden_coberturas = ["TOTAL"] + [c for c in abundancia_por_cobertura.index if c != "TOTAL"]
+    plt.style.use('seaborn-v0_8-whitegrid')
 
-    n = len(orden_coberturas)
-    # calcular layout
+    colores = plt.cm.tab10.colors  # paleta
+    abundancia_por_cobertura = (
+        curvas_df.groupby("COBERTURA")["INDIVIDUOS"].sum().sort_values(ascending=False)
+    )
+
+    fig, ax = plt.subplots(figsize=figsize)
+    textos = []
+    offset = 0  # desplazamiento horizontal
+
+    #----------------------------------- GRAFICAR CADA CURVA -----------------------------------
+    for i, (cobertura, _) in enumerate(abundancia_por_cobertura.items()):
+        sub = curvas_df[curvas_df["COBERTURA"] == cobertura].copy()
+        if sub.empty:
+            continue
+
+        sub = sub.sort_values(by="INDIVIDUOS", ascending=False).reset_index(drop=True)
+        sub["RANGO"] = np.arange(1, len(sub) + 1) + offset
+        sub["LOG10_ABUND"] = np.log10(sub["INDIVIDUOS"] + 1)
+
+        # --- Graficar curva tipo escalon con puntos ---
+        ax.plot(
+            sub["RANGO"], sub["LOG10_ABUND"],
+            marker="o", markersize=4, linestyle="-",
+            color=colores[i % len(colores)], linewidth=1.8, alpha=0.9,
+            label=cobertura, zorder=3
+        )
+
+        #----------------------------------- ETIQUETAS (5 especies distribuidas) -----------------------------------
+        n_especies = len(sub)
+        indices_etiqueta = [0]  # siempre la más abundante
+
+        if n_especies > 5:
+            indices_otros = np.linspace(1, n_especies - 1, 4, dtype=int)
+            indices_etiqueta.extend(indices_otros)
+        else:
+            indices_etiqueta = list(range(n_especies))
+
+        for j_idx in indices_etiqueta:
+            especie = abreviar_nombre(sub.loc[j_idx, "ESPECIE"])
+            x = sub.loc[j_idx, "RANGO"]
+            y = sub.loc[j_idx, "LOG10_ABUND"]
+
+            txt = ax.text(
+                x, y, especie, fontsize=10, ha='center', va='bottom',
+                rotation=0, style='italic', color='black', zorder=5
+            )
+            textos.append(txt)
+        # --- Control preciso del desplazamiento entre curvas ---
+        factor_desplazamiento = 1  # 🔹 AJUSTA AQUÍ (por ejemplo 0.2, 
+
+        offset += len(sub) * factor_desplazamiento  # desplazar siguiente curva
+
+    #----------------------------------- AJUSTAR ETIQUETAS -----------------------------------
+    adjust_text(
+        textos, ax=ax,
+        arrowprops=dict(arrowstyle="-", lw=0.7, color="gray", alpha=0.6),
+        expand_points=(1.2, 1.2), force_text=0.7
+    )
+
+    #----------------------------------- ESTILO Y DETALLES -----------------------------------
+    ax.set_title("Curvas rango–abundancia comparativas por cobertura", fontsize=14, fontweight='bold')
+    ax.set_xlabel("Rango de especies", fontsize=12)
+    ax.set_ylabel("Log10 (Abundancia + 1)", fontsize=12)
+
+    # --- Grilla suave y ejes sutiles ---
+    ax.grid(True, which='major', linestyle='--', alpha=0.4)
+    ax.grid(True, which='minor', linestyle=':', alpha=0.2)
+    ax.minorticks_on()
+
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(0.8)
+        spine.set_color("gray")
+
+    # --- Leyenda arriba a la derecha ---
+    ax.legend(title="Cobertura", loc="upper right", frameon=True,
+              fontsize=12, title_fontsize=14)
+
+    plt.tight_layout()
+    plt.show()
+
+#----------------------------------- GUARDAR GRÁFICO -----------------------------------
+    import os  # Para manejar rutas y crear carpetas
+    
+       #----------------------------------- GUARDAR GRÁFICO -----------------------------------
+    output_folder = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados"
+    os.makedirs(output_folder, exist_ok=True)
+    ruta_salida = os.path.join(output_folder, "Curvas_Rango_Abundancia_Combinado.png")
+
+    fig.savefig(ruta_salida, dpi=300, bbox_inches="tight")
+    print(f"✅ Gráfico guardado en:\n{ruta_salida}")
+
+
+#----------------------------------- USO -----------------------------------
+plot_curvas_comparativas_estilo(curvas_df, figsize=(12, 7))
+#-----------------------------fin del Grafico unificado-----------------------------
+
+
+
+
+
+
+
+#----------------------------Graficar un panel por cobertura----------------------------
+
+#------------------- GRAFICAR UN PANEL POR COBERTURA --------------------
+
+import matplotlib.pyplot as plt
+import numpy as np
+from adjustText import adjust_text
+
+#----------------------------------- FUNCIÓN PARA ABREVIAR NOMBRES -----------------------------------
+def abreviar_nombre(nombre):
+    """Convierte 'Chlorophanes atratus' → 'C. atratus'."""
+    partes = nombre.split()
+    if len(partes) >= 2:
+        return f"{partes[0][0]}. {partes[1]}"
+    else:
+        return nombre
+
+#----------------------------------- FUNCIÓN POR COBERTURA -----------------------------------
+def plot_curvas_por_cobertura_estilo(curvas_df, figsize=(8, 6)):
+    """
+    Genera un gráfico independiente por cobertura (una figura por cobertura).
+    Mantiene el estilo tipo publicación, etiquetas ajustadas y escala log10.
+    """
+
+    plt.style.use('seaborn-v0_8-whitegrid')
+    colores = plt.cm.tab10.colors  # paleta
+
+    # --- Identificar coberturas en orden descendente de abundancia total ---
+    abundancia_por_cobertura = (
+        curvas_df.groupby("COBERTURA")["INDIVIDUOS"].sum().sort_values(ascending=False)
+    )
+
+    # --- Iterar por cobertura ---
+    for i, (cobertura, _) in enumerate(abundancia_por_cobertura.items()):
+        sub = curvas_df[curvas_df["COBERTURA"] == cobertura].copy()
+        if sub.empty:
+            continue
+
+        # --- Preparar datos ---
+        sub = sub.sort_values(by="INDIVIDUOS", ascending=False).reset_index(drop=True)
+        sub["RANGO"] = np.arange(1, len(sub) + 1)
+        sub["LOG10_ABUND"] = np.log10(sub["INDIVIDUOS"] + 1)
+
+        # --- Crear figura ---
+        fig, ax = plt.subplots(figsize=figsize)
+        color = colores[i % len(colores)]
+
+        # --- Graficar curva ---
+        ax.plot(
+            sub["RANGO"], sub["LOG10_ABUND"],
+            marker="o", markersize=5, linestyle="-",
+            color=color, linewidth=1.8, alpha=0.9,
+            label=cobertura, zorder=3
+        )
+
+        #----------------------------------- ETIQUETAS -----------------------------------
+        textos = []
+        n_especies = len(sub)
+        indices_etiqueta = [0]  # Siempre incluir la más abundante
+
+        if n_especies > 5:
+            indices_otros = np.linspace(1, n_especies - 1, 4, dtype=int)
+            indices_etiqueta.extend(indices_otros)
+        else:
+            indices_etiqueta = list(range(n_especies))
+
+        for j_idx in indices_etiqueta:
+            especie = abreviar_nombre(sub.loc[j_idx, "ESPECIE"])
+            x = sub.loc[j_idx, "RANGO"]
+            y = sub.loc[j_idx, "LOG10_ABUND"]
+
+            txt = ax.text(
+                x, y, especie, fontsize=9, ha='center', va='bottom',
+                rotation=0, style='italic', color='black', zorder=5
+            )
+            textos.append(txt)
+
+        # --- Ajustar etiquetas automáticamente ---
+        adjust_text(
+            textos, ax=ax,
+            arrowprops=dict(arrowstyle="-", lw=0.7, color="gray", alpha=0.6),
+            expand_points=(1.3, 1.3), force_text=0.8
+        )
+
+        #----------------------------------- ESTILO -----------------------------------
+        ax.set_title(f"Curva rango–abundancia: {cobertura}", fontsize=13, fontweight='bold')
+        ax.set_xlabel("Rango de especies", fontsize=12)
+        ax.set_ylabel("Log10 (Abundancia + 1)", fontsize=12)
+
+        # --- Grilla suave y ejes visibles ---
+        ax.grid(True, which='major', linestyle='--', alpha=0.4)
+        ax.grid(True, which='minor', linestyle=':', alpha=0.2)
+        ax.minorticks_on()
+
+        for spine in ax.spines.values():
+            spine.set_visible(True)
+            spine.set_linewidth(0.8)
+            spine.set_color("gray")
+
+        # --- Leyenda discreta arriba a la derecha ---
+        ax.legend(title="Cobertura", loc="upper right", frameon=True,
+                  fontsize=10, title_fontsize=11)
+
+        plt.tight_layout()
+        plt.show()
+        
+        #----------------------------------- GUARDAR GRÁFICO -----------------------------------
+        #import os  # ✅ dentro de la función (con la misma indentación que plt.show)
+
+        output_folder = r"D:\CORPONOR 2025\Backet\python_Proyect\Resultados"
+        os.makedirs(output_folder, exist_ok=True)
+
+        nombre_archivo = f"Curva_Rango_Abundancia_{cobertura.replace(' ', '_')}.png"
+        ruta_salida = os.path.join(output_folder, nombre_archivo)
+        fig.savefig(ruta_salida, dpi=300, bbox_inches="tight")
+        print(f"✅ Gráfico guardado: {ruta_salida}")
+
+        plt.close(fig)  # ✅ también dentro del for
+#----------------------------------- USO -----------------------------------
+
+plot_curvas_por_cobertura_estilo(curvas_df, figsize=(8, 6))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#------------------------------------fin del Grafico por cobertura----------------------------
+
+#------------------Graficar todas las coberturas en una grilla estilo publicación------------------
+
+#------------------- Curvas rango–abundancia por cobertura (en grilla, estilo publicación) --------------------
+import matplotlib.pyplot as plt
+import numpy as np
+from adjustText import adjust_text
+
+# --- Función para abreviar nombres científicos (C. atratus, etc.) ---
+def abreviar_nombre(nombre):
+    """Convierte 'Chlorophanes atratus' → 'C. atratus'."""
+    partes = nombre.split()
+    if len(partes) >= 2:
+        return f"{partes[0][0]}. {partes[1]}"
+    else:
+        return nombre
+
+# --- Función principal ---
+def plot_curvas_grid_estilo(curvas_df, ncols=3, figsize_per_col=(5, 6)):
+    """
+    Dibuja curvas rango-abundancia en una grilla estilo publicación.
+    - ncols: número de columnas en la grilla.
+    - figsize_per_col: tamaño base de cada columna.
+    - Ajusta etiquetas automáticamente y mantiene escala uniforme entre paneles.
+    """
+
+    plt.style.use('seaborn-v0_8-whitegrid')  # 🎨 estilo limpio y moderno
+
+    # --- Ordenar coberturas (TOTAL primero si existe) ---
+    abund_por_cob = curvas_df.groupby("COBERTURA")["INDIVIDUOS"].sum().sort_values(ascending=False)
+    orden_cob = ["TOTAL"] + [c for c in abund_por_cob.index if c != "TOTAL" and c in curvas_df["COBERTURA"].unique()]
+
+    # --- Límites globales del eje Y (mismo para todas las coberturas) ---
+    ymin = curvas_df["LOG10_ABUND"].min() - 0.2
+    ymax = curvas_df["LOG10_ABUND"].max() + 0.2
+
+    # --- Calcular número de filas/columnas y tamaño total ---
+    n = len(orden_cob)
     ncols = max(1, int(ncols))
     nrows = int(np.ceil(n / ncols))
-
     fig_w = figsize_per_col[0] * ncols
-    fig_h = figsize_per_col[1] * nrows
-    fig, axes = plt.subplots(nrows, ncols, figsize=(fig_w, fig_h), sharey='row')
-    
-    # normalizar axes a lista
-    if isinstance(axes, plt.Axes):
-        axes = np.array([[axes]])
+    fig_h = figsize_per_col[1] * nrows + 1.5
+    fig, axes = plt.subplots(nrows, ncols, figsize=(fig_w, fig_h), sharey=True)
+
+    # --- Normalizar ejes (por si hay una sola fila o columna) ---
     axes = np.atleast_2d(axes).reshape(nrows, ncols)
 
-    # iterar y graficar
+    # --- Paleta de colores consistente ---
+    colores = plt.cm.tab10.colors
+
+    # --- Iterar coberturas y graficar ---
     idx = 0
     for r in range(nrows):
         for c in range(ncols):
+            ax = axes[r, c]
             if idx >= n:
-                # eje sobrante: ocultar
-                axes[r, c].axis('off')
-                idx += 1
+                ax.axis('off')  # Apagar panel vacío
                 continue
 
-            cov = orden_coberturas[idx]
-            ax = axes[r, c]
-            sub = curvas_df[curvas_df["COBERTURA"] == cov].sort_values("RANGO")
+            cov = orden_cob[idx]
+            sub = curvas_df[curvas_df["COBERTURA"] == cov].copy()
+
             if sub.empty:
                 ax.text(0.5, 0.5, "Sin datos", ha="center", va="center", fontsize=12)
-                ax.set_title(cov, fontsize=11, fontweight="bold")
-                ax.set_xlabel("Rango de especies")
-                if r == 0 and c == 0:
-                    ax.set_ylabel("Log₁₀ (Abundancia + 1)")
-                idx += 1
-                continue
+            else:
+                # --- Preparar datos ordenados por abundancia ---
+                sub = sub.sort_values(by="INDIVIDUOS", ascending=False).reset_index(drop=True)
+                sub["RANGO"] = np.arange(1, len(sub) + 1)
+                sub["LOG10_ABUND"] = np.log10(sub["INDIVIDUOS"] + 1)
 
-            ax.plot(sub["RANGO"], sub["LOG10_ABUND"], marker="o", linestyle="-", color=f"C{idx % 10}")
-            # etiquetas: 5 salteadas
-            etiquetas_idx = sub.index[::max(1, len(sub)//5)]
-            for j in etiquetas_idx:
-                especie = abreviar_nombre(sub.loc[j, "ESPECIE"])
-                ax.text(sub.loc[j, "RANGO"], sub.loc[j, "LOG10_ABUND"] + 0.01, especie,
-                        rotation=30, fontsize=8, style='italic', ha='center')
-            ax.set_title(cov, fontsize=11, fontweight="bold")
-            ax.set_xlabel("Rango de especies")
+                # --- Graficar curva principal ---
+                ax.plot(
+                    sub["RANGO"], sub["LOG10_ABUND"],
+                    marker="o", markersize=4,
+                    linestyle="-", color=colores[idx % len(colores)],
+                    linewidth=1.8, alpha=0.9, zorder=3
+                )
+
+                # --- Etiquetar hasta 5 especies (primera + 4 distribuidas) ---
+                textos = []
+                n_especies = len(sub)
+                indices_etiqueta = [0]  # siempre la más abundante
+
+                if n_especies > 5:
+                    indices_otros = np.linspace(1, n_especies - 1, 4, dtype=int)
+                    indices_etiqueta.extend(indices_otros)
+                else:
+                    indices_etiqueta = list(range(n_especies))
+
+                # --- Crear etiquetas ---
+                for j_idx in indices_etiqueta:
+                    especie = abreviar_nombre(sub.loc[j_idx, "ESPECIE"])
+                    x = sub.loc[j_idx, "RANGO"]
+                    y = sub.loc[j_idx, "LOG10_ABUND"]
+                    txt = ax.text(
+                        x, y, especie, fontsize=8, ha='center', va='bottom',
+                        rotation=45, style='italic', color='black', zorder=5
+                    )
+                    textos.append(txt)
+
+                # --- Ajuste automático de etiquetas para evitar solapes ---
+                if textos:
+                    adjust_text(
+                        textos, ax=ax,
+                        arrowprops=dict(arrowstyle='-', lw=0.6, color='gray', alpha=0.6),
+                        expand_points=(1.2, 1.2), force_text=0.7
+                    )
+
+            # --- Personalización del panel ---
+            ax.set_title(cov, fontsize=12, fontweight="bold", pad=10)
+            ax.set_ylim(ymin, ymax)
+            ax.grid(True, linestyle="--", alpha=0.4)
+            ax.minorticks_on()
+            for spine in ax.spines.values():
+                spine.set_visible(True)
+                spine.set_linewidth(0.8)
+                spine.set_color("gray")
+
+            # --- Etiquetas de ejes (solo bordes exteriores) ---
+            if r == nrows - 1:
+                ax.set_xlabel("Rango de especies", fontsize=10)
+            else:
+                ax.set_xlabel("")
             if c == 0:
-                ax.set_ylabel("Log₁₀ (Abundancia + 1)")
-            ax.grid(True, linestyle="--", alpha=0.1)
+                ax.set_ylabel("Log₁₀ (Abundancia + 1)", fontsize=10)
+            else:
+                ax.set_ylabel("")
+
             idx += 1
 
-    plt.suptitle("Curvas rango-abundancia por cobertura", fontsize=14, fontweight="bold")
-    plt.tight_layout(rect=[0, 0, 1, 0.95])
+    # --- Título general del gráfico ---
+    plt.suptitle("Curvas rango_abundancia por cobertura", fontsize=15, fontweight="bold", y=0.99)
+    plt.tight_layout(rect=[0, 0, 1, 0.97], h_pad=1.5, w_pad=0.7)
+    # --- Guardar figura ---
+    nombre_archivo = "Curvas_rango_abundancia_por_cobertura_grid.png"
+    ruta_salida = os.path.join(output_folder, nombre_archivo)
+    fig.savefig(ruta_salida, dpi=300, bbox_inches="tight")
+    print(f"✅ Gráfico guardado en: {ruta_salida}") 
+   
+   
+   
     plt.show()
 
-# ------------------------------
-# Ejemplos de uso:
-# Si quieres 1 columna (apiladas):
-plot_curvas_grid(curvas_df, ncols=1)
 
-# Si quieres en 2 columnas:
-plot_curvas_grid(curvas_df, ncols=2)
+# Ejemplo de uso:
+plot_curvas_grid_estilo(curvas_df, ncols=3)
 
-# Si quieres en 3 columnas:
-plot_curvas_grid(curvas_df, ncols=3)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#-----------------------------fin del segundo grafico-----------------------------
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-# --- Ordenar coberturas por abundancia total ---
-abundancia_por_cobertura = (
-    curvas_df.groupby("COBERTURA")["INDIVIDUOS"].sum().sort_values(ascending=False)
-)
-orden_coberturas = ["TOTAL"] + [c for c in abundancia_por_cobertura.index if c != "TOTAL"]
-
-# --- Función para abreviar nombres ---
-def abreviar_nombre(nombre):
-    partes = nombre.split()
-    return f"{partes[0][0]}. {partes[1]}" if len(partes) >= 2 else nombre
-
-# --- Crear figura ---
-plt.figure(figsize=(12, 6))
-
-# --- Graficar todas las coberturas ---
-for i, cobertura in enumerate(orden_coberturas):
-    sub = curvas_df[curvas_df["COBERTURA"] == cobertura].copy()
-    sub = sub.sort_values("INDIVIDUOS", ascending=False).reset_index(drop=True)
-    sub["RANGO"] = np.arange(1, len(sub) + 1)
-
-    # Dibujar curva
-    plt.plot(
-        sub["RANGO"],
-        sub["LOG10_ABUND"],
-        marker="o",
-        linestyle="-",
-        color=f"C{i}",
-        label=cobertura,
-        linewidth=2,
-        alpha=0.8
-    )
-
-# --- Etiquetas salteadas solo para TOTAL (para no saturar) ---
-sub_total = curvas_df[curvas_df["COBERTURA"] == "TOTAL"].sort_values("INDIVIDUOS", ascending=False).reset_index(drop=True)
-sub_total["RANGO"] = np.arange(1, len(sub_total) + 1)
-n_etiquetas = 6
-idx_etiquetas = np.linspace(0, len(sub_total) - 1, n_etiquetas, dtype=int)
-
-for j in idx_etiquetas:
-    especie = abreviar_nombre(sub_total.loc[j, "ESPECIE"])
-    plt.text(
-        sub_total.loc[j, "RANGO"],
-        sub_total.loc[j, "LOG10_ABUND"] + 0.05,
-        especie,
-        rotation=45,
-        ha="right",
-        va="bottom",
-        fontsize=8
-    )
-
-# --- Personalización del gráfico ---
-plt.title("Curvas rango–abundancia comparativas por cobertura", fontsize=14, fontweight="bold")
-plt.xlabel("Rango de especies (ordenadas por abundancia)")
-plt.ylabel("Log₁₀ (Abundancia + 1)")
-plt.legend(title="Cobertura")
-plt.grid(True, linestyle="--", alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-
-#--------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#-------------------Otro intento de grafico--------------------
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-# --- Copia del dataframe ---
-df_long = curvas_df.rename(columns={
-    "ESPECIE": "Especie",
-    "COBERTURA": "Cobertura",
-    "INDIVIDUOS": "Abundancia"
-})
-
-# --- Abreviar nombres científicos ---
-def abreviar_nombre(nombre):
-    partes = nombre.split()
-    if len(partes) >= 2:
-        return f"{partes[0][0]}. {partes[1]}"
-    else:
-        return nombre
-
-df_long["Especie_abrev"] = df_long["Especie"].apply(abreviar_nombre)
-
-# --- Orden de coberturas y desplazamientos personalizados ---
-orden_coberturas = ["TOTAL", "Bdatf", "Bdbtf", "Bfvs", "Bgr"]
-desplazamientos = {
-    "TOTAL": 0,
-    "Bdatf": 120,
-    "Bdbtf": 250,
-    "Bfvs": 360,
-    "Bgr": 400
-}
-
-# --- Crear figura ---
-plt.figure(figsize=(14, 7))
-
-# --- Dibujar cada curva con su desplazamiento propio ---
-for cobertura in orden_coberturas:
-    subset = df_long[df_long["Cobertura"] == cobertura].copy()
-    subset = subset.sort_values("Abundancia", ascending=False)
-    subset["log_abund"] = np.log10(subset["Abundancia"] + 1)
-
-    # rango desplazado según cobertura
-    rango = np.arange(1, len(subset) + 1) + desplazamientos[cobertura]
-
-    # graficar curva
-    plt.plot(rango, subset["log_abund"], marker='o', label=cobertura)
-
-    # mostrar nombres abreviados en ~5 puntos
-    for j in np.linspace(0, len(subset) - 1, 5, dtype=int):
-        plt.text(
-            rango[j],
-            subset["log_abund"].iloc[j] + 0.01,
-            subset["Especie_abrev"].iloc[j],
-            fontsize=8,
-            rotation=15,
-            ha='center',
-            style='italic'
-        )
-
-# --- Etiquetas, leyenda y formato ---
-plt.title("Curvas rango–abundancia comparativas por cobertura (alineadas)", fontsize=14, fontweight='bold')
-plt.xlabel("Rango de especies (desplazadas por cobertura)", fontsize=12)
-plt.ylabel("Log₁₀ (Abundancia + 1)", fontsize=12)
-plt.legend(title="Cobertura", loc="upper right")
-plt.grid(True, linestyle="--", alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-#-----------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-
-# --- Copia del dataframe ---
-df_long = curvas_df.rename(columns={
-    "ESPECIE": "Especie",
-    "COBERTURA": "Cobertura",
-    "INDIVIDUOS": "Abundancia"
-})
-
-# --- Abreviar nombres científicos ---
-def abreviar_nombre(nombre):
-    partes = nombre.split()
-    if len(partes) >= 2:
-        return f"{partes[0][0]}. {partes[1]}"
-    else:
-        return nombre
-
-df_long["Especie_abrev"] = df_long["Especie"].apply(abreviar_nombre)
-
-# --- Orden de coberturas y desplazamientos personalizados ---
-orden_coberturas = ["TOTAL", "Bdatf", "Bdbtf", "Bfvs", "Bgr"]
-
-# desplazamientos horizontales (en eje X)
-desplazamientos_x = {
-    "TOTAL": 0,
-    "Bdatf": 120,
-    "Bdbtf": 240,
-    "Bfvs": 360,
-    "Bgr": 380
-}
-
-# desplazamientos verticales (en eje Y)
-desplazamientos_y = {
-    "TOTAL": 0.0,
-    "Bdatf": 0.3,
-    "Bdbtf": 0.6,
-    "Bfvs": 0.9,
-    "Bgr": 1.2
-}
-
-# --- Crear figura ---
-plt.figure(figsize=(14, 8))
-
-# --- Dibujar cada curva con desplazamientos horizontales y verticales ---
-for cobertura in orden_coberturas:
-    subset = df_long[df_long["Cobertura"] == cobertura].copy()
-    subset = subset.sort_values("Abundancia", ascending=False)
-    subset["log_abund"] = np.log10(subset["Abundancia"] + 1)
-    
-    # aplicar desplazamientos
-    rango = np.arange(1, len(subset) + 1) + desplazamientos_x[cobertura]
-    log_abund_desplazada = subset["log_abund"] + desplazamientos_y[cobertura]
-    
-    # graficar curva
-    plt.plot(rango, log_abund_desplazada, marker='o', label=cobertura)
-    
-    # mostrar nombres abreviados en ~5 puntos por curva
-    for j in np.linspace(0, len(subset) - 1, 5, dtype=int):
-        plt.text(
-            rango[j],
-            log_abund_desplazada.iloc[j] + 0.03,
-            subset["Especie_abrev"].iloc[j],
-            fontsize=8,
-            rotation=45,
-            ha='center',
-            style='italic'  # etiquetas en cursiva
-        )
-
-# --- Etiquetas, leyenda y formato ---
-plt.title("Curvas rango–abundancia comparativas por cobertura (alineadas y desplazadas)", 
-          fontsize=14, fontweight='bold')
-plt.xlabel("Rango de especies (desplazadas por cobertura)", fontsize=12)
-plt.ylabel("Log₁₀ (Abundancia + 1) + desplazamiento vertical", fontsize=12)
-plt.legend(title="Cobertura", loc="upper right")
-plt.grid(True, linestyle="--", alpha=0.5)
-plt.tight_layout()
-plt.show()
-
-
-
-
-#----------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#------------------------------------fin del Grafico en grilla----------------------------
