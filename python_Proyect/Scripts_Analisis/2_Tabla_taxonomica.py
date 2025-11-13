@@ -1,3 +1,32 @@
+
+#--------------## Cargar librerias necesarias------------------------------
+
+# Si no las tienes instaladas, ejecuta esta celda una vez:
+# Salir del interprete con: exit() exit() python   pip install tabulate pandas numpy scipy scikit-bio openpyxl
+#
+# !pip install pandas numpy matplotlib tabulate openpyxl
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from tabulate import tabulate
+import openpyxl
+
+#--------------## Leer archivo y revisar columnas------------------------------
+# Ruta del archivo
+ruta = r"D:\CORPONOR 2025\Backet\python_Proyect\data\POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx"
+
+# Leer el archivo Excel
+Registros = pd.read_excel(ruta)
+
+# Mostrar las primeras filas
+print("📄 Primeras filas del archivo:")
+print(Registros.head())
+
+# Mostrar nombres de las columnas
+print("\n📋 Columnas del DataFrame:")
+print(Registros.columns)
+
 #------------------------Tabla general grupo taxonomico-------------------------
 
 # Mostrar las primeras filas
