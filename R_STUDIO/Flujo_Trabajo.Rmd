@@ -1,0 +1,906 @@
+---
+title: "Flujo_Trabajo_FaunaScope"
+author: "Juan Carlos Ramirez Gil"
+date: "2025-11-05"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduccion
+
+Este código corresponde a u análisis estadístico de la diversidad par aves y mamíferos en la parte alta de cuenca del rio zulia en el departamento de norte de Santander como parte de una prestacion de servicios profesionales en Biologia (Fauna), el siguiente código integra Python desde R Studio para crear un código de análisis reproducible y moderno que permita ahorrar el trabajo de análisis en proyectos futuros.
+
+## Crear repositorio en GitHub para guardar el proyecto
+
+El proyecto sera guardado en un repositorio de github para poder darle trazabilidad al mismo y compartirlo libremente
+
+```{r}
+# ============================================================
+# 🔗 CONFIGURAR GIT Y GITHUB DESDE RSTUDIO
+# ============================================================
+
+# 1️⃣ Instalar e importar el paquete necesario
+#install.packages("usethis")
+library(usethis)
+
+# ------------------------------------------------------------
+# 2️⃣ CONFIGURAR TU IDENTIDAD DE GIT
+# (Estos datos deben coincidir con tu cuenta de GitHub)
+# ------------------------------------------------------------
+use_git_config(
+  user.name = "BioRamirez",                    # tu nombre de usuario de GitHub
+  user.email = "bioramirezjuan@gmail.com"      # el correo vinculado a GitHub
+)
+
+# Puedes verificar si Git está correctamente instalado en tu PC
+system("git --version")   # o desde la terminal de RStudio: git --version
+
+
+# ============================================================
+# 3️⃣ CREAR UN TOKEN PERSONAL DE ACCESO (PAT)
+# ============================================================
+
+# Esto abrirá tu navegador para crear un token con permisos "repo"
+#usethis::create_github_token(scopes = c("repo"))
+
+# 👉 En GitHub, copia el token (algo como: ghp_sD7xKfLZtPq6...)
+
+# ============================================================
+# 4️⃣ GUARDAR EL TOKEN EN TU SISTEMA DE R
+# ============================================================
+
+# Esto abrirá tu archivo .Renviron
+#usethis::edit_r_environ()
+
+# 💡 En el archivo que se abre, pega una línea como esta (sin comillas):
+# GITHUB_PAT=ghp_tuTokenLargoQueCopiasteDeGitHub
+# Guarda y cierra el archivo, luego REINICIA RStudio.
+
+# ============================================================
+# 5️⃣ VERIFICAR QUE R RECONOZCA TU TOKEN
+# ============================================================
+#Sys.getenv("GITHUB_PAT")
+# ✅ Debe mostrar tu token (o al menos empezar con "ghp_").
+# Si devuelve "", vuelve a editar el .Renviron y revisa la sintaxis.
+
+
+# ============================================================
+# 6️⃣ INICIALIZAR GIT EN TU PROYECTO LOCAL
+# ============================================================
+
+# 📁 Asegúrate de estar dentro del proyecto que deseas conectar
+# Si no tienes un proyecto abierto, crea uno nuevo en RStudio (File > New Project)
+# usethis::use_git()
+
+# 👉 Esto crea la carpeta .git y un archivo .gitignore
+# RStudio puede pedirte reiniciar; hazlo.
+
+# ============================================================
+# 7️⃣ CREAR Y VINCULAR REPOSITORIO EN GITHUB
+# ============================================================
+
+# Esto creará automáticamente un repositorio en GitHub
+# y lo enlazará con tu proyecto local
+# usethis::use_github()
+
+# 🔸 Se hará un commit inicial y se subirá el código a GitHub.
+# 🔸 Se abrirá el repositorio en tu navegador.
+
+
+# ============================================================
+# 8️⃣ VERIFICAR LA CONEXIÓN
+# ============================================================
+
+system("git remote -v")
+
+# Debes ver algo como:
+# origin  https://github.com/BioRamirez/NombreDeTuRepo.git (fetch)
+# origin  https://github.com/BioRamirez/NombreDeTuRepo.git (push)
+
+
+# ============================================================
+# 9️⃣ SUBIR CAMBIOS FUTUROS
+# ============================================================
+
+system('git config --global --list')
+
+# Después de modificar tu proyecto, ejecuta:
+system("git add .")                         # Añade todos los archivos
+system('git commit -m "Actualización de análisis"')  # Describe el cambio
+system("git push")                          # Sube los cambios a GitHub
+
+# O puedes usar el panel Git en RStudio (arriba a la derecha).
+
+
+# ============================================================
+# 🧠 EXTRA: VERIFICAR ESTADO DE GIT EN CUALQUIER MOMENTO
+# ============================================================
+system("git status")
+```
+
+
+# Analisis de datos
+Hay que recordar que se trabajara desde python, utilizando pandas y leyendo archivos xlsx, para esto se aplica el paquete reticulate para trbajar python desde r studio
+
+```{r}
+#----------------------------------------------------Iniciar Python en R studio--------------------------
+
+system("python --version")
+
+#Instalar paquete para ejecutar python en R studio
+#install.packages("reticulate")
+library(reticulate)
+
+py_config()
+
+library(reticulate)
+
+# Crea un entorno virtual permanente llamado "r-reticulate"
+# virtualenv_create("C:/Users/Ramirez Juan/.python_envs/r-reticulate")
+
+# Usar este entorno como el principal de reticulate
+# use_virtualenv("C:/Users/Ramirez Juan/.python_envs/r-reticulate", required = TRUE)
+
+# Instala los paquetes básicos de ciencia de datos
+py_install(c("pandas", "numpy", "matplotlib", "tabulate", "openpyxl"))
+
+```
+
+## Ver tabla de registros
+Se lee el archivo con los registros y los datos ecológicos desde un xlsx en el ordenador donde se realiza el análisis
+
+```{r}
+library(reticulate)
+
+# Instalar pandas y openpyxl si aún no los tienes
+# py_install(c("pandas", "openpyxl"))
+
+# Ejecutar código Python desde R
+py_run_string("
+import pandas as pd
+
+# Leer el archivo Excel
+Registros = pd.read_excel('D:/CORPONOR 2025/FOTOS/POF_ZULIA_2025_BD_AVES_MAMIFEROS.xlsx')
+
+# Mostrar las primeras filas
+print(Registros.head())
+")
+
+
+py_run_string("# Mostrar las primeras filas
+print(Registros.info())
+")
+
+# También puedes traer el DataFrame a R si lo necesitas:
+Registros <- py$Registros
+View(Registros)
+```
+
+# Metodologia
+
+
+A continuación, se describen los análisis realizados sobre la información obtenida durante el muestreo de fauna.
+
+
+## Esfuerzo de Muestreo
+El esfuerzo de muestreo (E) se estimó de acuerdo con la metodología empleada y las características del grupo taxonómico evaluado, considerando la relación entre el número de unidades de muestreo, el tiempo efectivo de muestreo y, cuando aplicó, el número de observadores o dispositivos utilizados. En términos generales, el esfuerzo se calculó multiplicando el número de unidades de muestreo (trampas, redes, cámaras, transectos o puntos de observación) por el tiempo de exposición o duración de cada sesión de muestreo (horas, días o noches), ajustado al número de personas o equipos activos en campo. Esta aproximación permite estandarizar la intensidad del muestreo entre diferentes métodos y grupos biológicos, facilitando la comparación de resultados y la estimación del éxito de muestreo (Em), definido como la razón entre el número total de registros obtenidos y el esfuerzo total aplicado para cada técnica.
+
+##### En primera instancia se revisa el contenido de las columas a utilizar en el analisis
+
+```{r}
+#--------------## Esfuerzo de Muestreo------------------------------
+
+py_run_string("# Mostrar las primeras filas
+print(Registros.head())
+")
+
+py_run_string("print(Registros.columns)")
+
+py_run_string("print(Registros['METODOLOGIA'].unique())")
+
+py_run_string("print(Registros['METODO'].unique())")
+
+py_run_string("print(Registros['ID'].unique())")
+
+py_run_string("print(Registros['Gremio'].unique())")
+
+
+```
+
+#### Crear tabla de esfuerzo de muestreo
+
+```{r}
+
+library(reticulate)
+# py_install(c("pandas", "numpy"))
+
+# py_install(c("tabulate", "openpyxl"))
+
+py_run_string("
+import pandas as pd
+from tabulate import tabulate
+
+# --- Copiar dataframe base ---
+df = Registros.copy()
+
+# --- Normalizar texto ---
+df['METODO'] = df['METODO'].astype(str).str.strip()
+df['COBERTURA'] = df['COBERTURA'].astype(str).str.strip()
+df['ID'] = df['ID'].astype(str).str.strip()
+
+# --- Diccionario de abreviaciones de coberturas ---
+abreviaciones_cobertura = {
+    'Bosque De Galería Y Ripario': 'Bgr',
+    'Bosque De Galeria Y Ripario': 'Bgr',
+    'Bosque Denso Alto De Tierra Firme': 'Bda',
+    'Bosque Denso Bajo De Tierra Firme': 'Bdb',
+    'Bosque Fragmentado Con Vegetación Secundaria': 'Bfvs',
+    'Bosque Fragmentado Con Vegetacion Secundaria': 'Bfvs',
+    'Sin Dato': 'NA'
+}
+
+# --- Aplicar reemplazos (con control de mayúsculas y tildes) ---
+df['COBERTURA'] = df['COBERTURA'].apply(
+    lambda x: abreviaciones_cobertura.get(x.strip().title(), x)
+)
+
+# --- Reemplazar vacíos y nulos por 'Sin dato' ---
+df['METODO'] = df['METODO'].replace('', 'Sin dato').fillna('Sin dato')
+df['COBERTURA'] = df['COBERTURA'].replace('', 'Sin dato').fillna('Sin dato')
+
+
+# --- Validar que exista la nueva columna de horas ---
+if 'Hora_Hombre' not in df.columns:
+    raise ValueError('❌ La columna Hora_Hombre no existe en el dataframe Registros.')
+
+# --- Calcular totales de individuos (sin perder registros) ---
+individuos = (
+    df.groupby(['METODO', 'COBERTURA'], dropna=False, as_index=False)['INDIVIDUOS']
+      .sum(min_count=1)
+)
+
+# --- Calcular esfuerzo total único por ID ---
+# (Evitamos duplicar horas si un ID aparece varias veces)
+esfuerzo_unico = df[['ID', 'METODO', 'COBERTURA', 'Hora_Hombre']].drop_duplicates()
+
+# --- Calcular esfuerzo total (solo una vez por ID) ---
+esfuerzo = (
+    esfuerzo_unico.groupby(['METODO', 'COBERTURA'], dropna=False, as_index=False)['Hora_Hombre']
+    .sum(min_count=1)
+    .rename(columns={'Hora_Hombre': 'Esfuerzo_horas'})
+)
+
+
+# --- Unir tablas ---
+tabla = individuos.merge(esfuerzo, on=['METODO', 'COBERTURA'], how='outer')
+tabla['Exito_captura'] = tabla['INDIVIDUOS'] / tabla['Esfuerzo_horas']
+
+# --- Calcular totales por método ---
+totales = tabla.groupby('METODO', as_index=False).agg({
+    'INDIVIDUOS': 'sum',
+    'Esfuerzo_horas': 'sum'
+})
+totales['Exito_captura'] = totales['INDIVIDUOS'] / totales['Esfuerzo_horas']
+totales['COBERTURA'] = 'Total'
+
+# --- Unir con la tabla principal ---
+tabla_final = pd.concat([tabla, totales], ignore_index=True)
+
+# --- Reestructurar para salida ---
+tabla_melt = pd.melt(
+    tabla_final,
+    id_vars=['METODO', 'COBERTURA'],
+    value_vars=['INDIVIDUOS', 'Esfuerzo_horas', 'Exito_captura'],
+    var_name='Indice',
+    value_name='Valor'
+)
+
+# --- Cambiar nombres de los índices ---
+tabla_melt['Indice'] = tabla_melt['Indice'].replace({
+    'INDIVIDUOS': 'Número de individuos',
+    'Esfuerzo_horas': 'Esfuerzo captura (horas-hombre)',
+    'Exito_captura': 'Éxito de captura (individuos/horas-hombre)'
+})
+
+
+# --- Orden lógico de los índices ---
+orden_indices = [
+    'Número de individuos',
+    'Esfuerzo captura (horas-hombre)',
+    'Éxito de captura (individuos/horas-hombre)'
+]
+tabla_melt['Indice'] = pd.Categorical(tabla_melt['Indice'], categories=orden_indices, ordered=True)
+
+# --- Renombrar columna ---
+tabla_melt = tabla_melt.rename(columns={'METODO': 'Metodologia'})
+
+# --- Orden personalizado de metodologias ---
+orden_metodologia = [
+    'Transecto',
+    'Punto de observacion',
+    'Red de niebla',
+    'Camara Trampa',
+    'Informacion Secundaria'
+]
+
+tabla_melt['Metodologia'] = pd.Categorical(tabla_melt['Metodologia'], categories=orden_metodologia, ordered=True)
+
+# --- Orden personalizado de Metodologias ---
+orden_COBERTURA = [
+    'Bgr',
+    'Bfvs',
+    'Bda',
+    'Bdb',
+    'Total'
+]
+
+tabla_melt['COBERTURA'] = pd.Categorical(tabla_melt['COBERTURA'], categories=orden_COBERTURA, ordered=True)
+
+# --- Pivotar ---
+tabla_pivot = tabla_melt.pivot_table(
+    index=['Metodologia', 'Indice'],
+    columns='COBERTURA',
+    values='Valor',
+    aggfunc='first'
+).reset_index()
+
+# --- Redondear ---
+tabla_pivot = tabla_pivot.round(3)
+
+# --- Mostrar resumen en consola ---
+print(tabulate(tabla_pivot, headers='keys', tablefmt='fancy_grid', floatfmt='.3f'))
+
+# --- Exportar a Excel ---
+output_file = 'Esfuerzo_Muestreo.xlsx'
+tabla_pivot.to_excel(output_file, index=False)
+print(f'\\n✅ Archivo exportado correctamente como {output_file}')
+")
+
+```
+
+
+#### Dar Formato a la tabla exportada
+
+```{r}
+#-----------Dar formato------------
+py_run_string("
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+
+# --- Nombre del archivo a formatear ---
+output_file = 'Esfuerzo_Muestreo.xlsx'
+
+# --- Cargar el archivo ---
+wb = load_workbook(output_file)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+# --- Bordes finos para toda la tabla ---
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        # Reemplazar vacíos o None por guion
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        # Aplicar formato general
+        cell.border = thin_border
+        cell.alignment = center_align
+
+# --- Aplicar formato al encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas automáticamente ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        try:
+            if cell.value:
+                length = len(str(cell.value))
+                if length > max_length:
+                    max_length = length
+        except:
+            pass
+    adjusted_width = max_length + 3
+    ws.column_dimensions[column].width = adjusted_width
+
+# --- Ajustar altura de filas automáticamente ---
+for row in ws.iter_rows():
+    max_height = 15
+    for cell in row:
+        if cell.value:
+            lines = str(cell.value).count('\\n') + 1
+            if lines > 1:
+                max_height = 15 * lines
+    ws.row_dimensions[cell.row].height = max_height
+
+# --- Guardar cambios ---
+wb.save(output_file)
+print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bordes finos y guiones en vacíos.')
+")
+
+# También puedes traer el DataFrame a R si lo necesitas:
+esfuerzo_unico <- py$esfuerzo_unico
+View(esfuerzo_unico)
+```
+
+
+```{r}
+
+library(readxl)
+library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
+
+# Leer el archivo Excel
+tabla <- read_excel("Esfuerzo_Muestreo.xlsx")
+
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo Esfuerzo_Muestreo.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
+
+
+```
+
+## Tabla general grupo taxonomico
+La tabla presenta la composición taxonómica y ecológica de las especies registradas durante el muestreo, organizadas jerárquicamente por orden, familia y especie, e incluyendo el nombre común correspondiente. Para cada especie se indica su gremio trófico, lo que permite identificar los principales grupos funcionales presentes en el área de estudio y su papel dentro de la comunidad biológica. Asimismo, se especifican las coberturas o tipos de hábitat en las que fueron registradas, el valor de abundancia relativa o número de individuos observados, y el tipo de registro obtenido (observación directa, captura, fotografía, vocalización, entre otros). Esta información permite evaluar la diversidad, la estructura trófica y el grado de representatividad de las especies en las distintas coberturas evaluadas.
+
+```{r}
+#------------------------Tabla general grupo taxonomico-------------------------
+
+py_run_string("# Mostrar las primeras filas
+print(Registros.info())
+")
+
+
+py_run_string("
+import pandas as pd
+
+# --- Copiar el DataFrame base ---
+df = Registros.copy()
+
+# --- Normalizar texto ---
+for col in ['CLASE', 'Orden', 'Familia', 'Genero', 'Epiteto', 'N. comun', 'Gremio', 'COBERTURA', 'METODOLOGIA']:
+    df[col] = df[col].astype(str).str.strip().str.title()
+
+# --- Crear nombre científico completo ---
+df['Especie_cientifica'] = df['Genero'] + ' ' + df['Epiteto']
+
+# --- Diccionario de abreviaciones de Metodologia ---
+abreviaciones_metodo = {
+    'Auditivo': 'Aud',
+    'Fotografia': 'Fot',
+    'Fotografia ': 'Fot',
+    'Marcas De Presencia': 'MP',
+    'Avistamiento': 'Obs',
+    'Observacion': 'Obs',
+    'Entrevista': 'Ent',
+    'Captura': 'Cap',
+    'Rastros': 'Ras',
+    'Huellas': 'Hue',
+    'Cueva': 'Cuv',
+    'Heces': 'Hec',
+    'Video': 'Vid',
+    'Informacion Mcnup': 'MCNUP'
+}
+
+# --- Diccionario de abreviaciones de cobertura ---
+abreviaciones_cobertura = {
+    'Bosque De Galería Y Ripario': 'Bgr',
+    'Bosque Denso Alto De Tierra Firme': 'Bda',
+    'Bosque Denso Bajo De Tierra Firme': 'Bdb',
+    'Bosque Fragmentado Con Vegetación Secundaria': 'Bfvs'
+}
+
+# --- Diccionario de abreviaciones de gremio ---
+abreviaciones_gremio = {
+    'Carnívoro': 'Car',
+    'Nectarívoro': 'Nec',
+    'Carroñero': 'Crr',
+    'Granívoro': 'Gra',
+    'Frugívoro': 'Fru',
+    'Insectívoro': 'Ins',
+    'Omnívoro': 'Omn',
+    'Herbívoro': 'Her',
+    'Herbivoro': 'Her',
+    'Nan': 'NA'
+}
+
+# --- Reemplazar nombres por abreviaciones ---
+df['METODOLOGIA'] = df['METODOLOGIA'].replace(abreviaciones_metodo)
+df['COBERTURA'] = df['COBERTURA'].replace(abreviaciones_cobertura)
+df['Gremio'] = df['Gremio'].replace(abreviaciones_gremio)
+
+# --- Agrupar registros únicos por especie ---
+tabla = (
+    df.groupby(['CLASE', 'Orden', 'Familia', 'ESPECIE', 'N. comun', 'Gremio'], dropna=False)
+      .agg({
+          'COBERTURA': lambda x: ', '.join(sorted(set(x.dropna()))),
+          'INDIVIDUOS': 'sum',
+          'METODOLOGIA': lambda x: ', '.join(sorted(set(x.dropna())))
+      })
+      .reset_index()
+)
+
+# --- Crear tabla pivote con coberturas como columnas ---
+pivot = (
+    df.groupby(['ESPECIE', 'COBERTURA'], as_index=False)['INDIVIDUOS'].sum()
+      .pivot(index='ESPECIE', columns='COBERTURA', values='INDIVIDUOS')
+      .fillna(0)
+      .reset_index()
+)
+
+# --- Unir tabla pivote con la tabla principal ---
+tabla = tabla.merge(pivot, on='ESPECIE', how='left')
+
+# --- Renombrar columnas ---
+tabla = tabla.rename(columns={
+    'CLASE': 'Clase',
+    'Orden': 'Orden',
+    'Familia': 'Familia',
+    'ESPECIE': 'Especie',
+    'N. comun': 'Nombre comun',
+    'Gremio': 'Gremio trófico',
+    'COBERTURA': 'Cobertura(s)',
+    'INDIVIDUOS': 'Abundancia',
+    'METODOLOGIA': 'Tipo de registro'
+})
+
+# --- Ordenar clases ---
+orden_clase = ['Aves', 'Mammalia']
+tabla['Clase'] = pd.Categorical(tabla['Clase'], categories=orden_clase + sorted(set(tabla['Clase']) - set(orden_clase)), ordered=True)
+
+# --- Ordenar por Clase, Orden y Familia ---
+tabla = tabla.sort_values(['Clase', 'Orden', 'Familia', 'Especie']).reset_index(drop=True)
+
+# --- 🔹 Agregar conteo reiniciado por Clase ---
+tabla['N°'] = tabla.groupby('Clase').cumcount() + 1
+
+# --- 🔹 Insertar fila con nombres de columnas justo antes de Mammalia ---
+# --- 🔹 Insertar fila con nombres de columnas justo antes de Mammalia ---
+idx_mam = tabla.index[tabla['Clase'] == 'Mammalia']
+if len(idx_mam) > 0:
+    insert_pos = idx_mam[0]
+    fila_header = pd.DataFrame([{col: str(col) for col in tabla.columns}])  # ✅ mantiene texto
+    tabla = pd.concat([tabla.iloc[:insert_pos], fila_header, tabla.iloc[insert_pos:]], ignore_index=True)
+
+
+# --- 🔹 Eliminar columnas duplicadas ---
+tabla = tabla.loc[:, ~tabla.columns.duplicated()]
+
+# --- 🔹 Reordenar columnas ---
+columnas_orden = ['N°', 'Clase', 'Orden', 'Familia', 'Especie', 'Nombre comun',
+                  'Gremio trófico', 'Bda', 'Bdb', 'Bfvs', 'Bgr',
+                  'Abundancia', 'Tipo de registro']
+tabla = tabla[[col for col in columnas_orden if col in tabla.columns]]
+
+# --- Exportar a Excel ---
+output_file = 'tabla_composicion_taxonomica.xlsx'
+tabla.to_excel(output_file, index=False)
+
+print(tabla.head(10))
+print('\\n✅ Archivo exportado correctamente como', output_file)
+")
+
+```
+
+
+#### Dar Formato a la tabla exportada
+
+```{r}
+#-----------Dar formato------------
+py_run_string("
+from openpyxl import load_workbook
+from openpyxl.styles import PatternFill, Alignment, Font, Border, Side
+from openpyxl.utils import get_column_letter
+
+# --- Nombre del archivo a formatear ---
+output_file = 'Esfuerzo_Muestreo.xlsx'
+
+# --- Cargar el archivo ---
+wb = load_workbook(output_file)
+ws = wb.active
+
+# --- Estilos base ---
+header_fill = PatternFill(start_color='BFD8B8', end_color='BFD8B8', fill_type='solid')
+header_font = Font(bold=True, color='000000', name='Calibri')
+center_align = Alignment(horizontal='center', vertical='center', wrap_text=True)
+
+# --- Bordes finos para toda la tabla ---
+thin_border = Border(
+    left=Side(style='thin', color='000000'),
+    right=Side(style='thin', color='000000'),
+    top=Side(style='thin', color='000000'),
+    bottom=Side(style='thin', color='000000')
+)
+
+# --- Aplicar formato y reemplazar vacíos ---
+for row in ws.iter_rows():
+    for cell in row:
+        # Reemplazar vacíos o None por guion
+        if cell.value is None or str(cell.value).strip() == '':
+            cell.value = '-'
+        # Aplicar formato general
+        cell.border = thin_border
+        cell.alignment = center_align
+
+# --- Aplicar formato al encabezado ---
+for cell in ws[1]:
+    cell.fill = header_fill
+    cell.font = header_font
+    cell.alignment = center_align
+
+# --- Ajustar ancho de columnas automáticamente ---
+for col in ws.columns:
+    max_length = 0
+    column = get_column_letter(col[0].column)
+    for cell in col:
+        try:
+            if cell.value:
+                length = len(str(cell.value))
+                if length > max_length:
+                    max_length = length
+        except:
+            pass
+    adjusted_width = max_length + 3
+    ws.column_dimensions[column].width = adjusted_width
+
+# --- Ajustar altura de filas automáticamente ---
+for row in ws.iter_rows():
+    max_height = 15
+    for cell in row:
+        if cell.value:
+            lines = str(cell.value).count('\\n') + 1
+            if lines > 1:
+                max_height = 15 * lines
+    ws.row_dimensions[cell.row].height = max_height
+
+# --- Guardar cambios ---
+wb.save(output_file)
+print(f'📘 Archivo {output_file} formateado con éxito: celdas centradas, bordes finos y guiones en vacíos.')
+")
+
+
+```
+
+```{r}
+
+library(readxl)
+library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
+
+# Leer el archivo Excel
+tabla <- read_excel("tabla_composicion_taxonomica.xlsx")
+
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo tabla_composicion_taxonomica.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
+
+
+```
+
+
+## Figura de Ordenes_Familias
+La figura muestra la representatividad taxonómica de las especies registradas en el área de estudio, organizadas según su distribución por órdenes y familias. Se observa la variación en el número de especies por familia dentro de cada orden, lo que permite identificar los grupos con mayor riqueza y contribución a la diversidad total. Este tipo de representación facilita visualizar la estructura taxonómica de la comunidad y resalta los patrones de dominancia o equidad entre familias, proporcionando una base para analizar la composición y diversidad biológica del área evaluada.
+
+```{r}
+#------------------Figura de Ordenes familias---------------
+
+# --- Instalar e importar reticulate ---
+# install.packages("reticulate")
+library(reticulate)
+
+# --- Instalar dependencias de Python si hace falta ---
+# py_install(c("pandas", "matplotlib", "seaborn", "openpyxl"))
+
+# --- Ejecutar código Python ---
+
+py_run_string("
+import matplotlib
+matplotlib.use('Agg')
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+
+# --- Copiar dataframe base ---
+df = Registros.copy()
+
+
+# --- Si tu DataFrame ya está cargado en Python como df, úsalo directamente ---
+tabla = df.copy()
+
+# --- Limpiar nombres de columnas por seguridad ---
+tabla.columns = tabla.columns.str.strip()
+
+# Limpiar nombres de familia
+tabla['Familia'] = tabla['Familia'].astype(str).str.strip()
+
+# Eliminar filas con nombres de familia vacíos o 'nan'
+tabla = tabla[tabla['Familia'].notna()]
+tabla = tabla[tabla['Familia'] != '']
+
+
+# --- Asegurar que las columnas requeridas existen ---
+tabla = tabla.dropna(subset=['Orden', 'Familia', 'Especie'])
+
+# --- Crear tabla dinámica: número de especies únicas por Orden y Familia ---
+pivot_df = (
+    tabla.groupby(['Orden', 'Familia'])['Especie']
+    .nunique()
+    .reset_index()
+    .pivot(index='Orden', columns='Familia', values='Especie')
+    .fillna(0)
+    .astype(int)
+)
+
+# --- Exportar tabla a Excel ---
+excel_path = 'Riqueza_Orden_Familia.xlsx'
+pivot_df.to_excel(excel_path, sheet_name='Tabla_dinamica')
+
+# --- Crear gráfico de barras apiladas horizontal ---
+sns.set(style='whitegrid')
+fig, ax = plt.subplots(figsize=(12, 8))
+
+pivot_df.plot(
+    kind='barh',
+    stacked=True,
+    colormap='tab20',
+    edgecolor='black',
+    ax=ax
+)
+
+# --- Añadir etiquetas dentro de las barras ---
+for container in ax.containers:
+    # etiquetas solo si el valor del segmento > 0
+    labels = [f'{w.get_width():.0f}' if w.get_width() > 0 else '' for w in container]
+    ax.bar_label(
+        container,
+        labels=labels,
+        label_type='center',     # posición centrada dentro del bloque
+        fontsize=7,
+        color='black',
+        weight='bold'
+    )
+
+# --- Etiquetas y formato ---
+ax.set_title('Riqueza de especies por Orden y Familia', fontsize=14, fontweight='bold')
+ax.set_xlabel('Número de especies')
+ax.set_ylabel('Orden')
+# --- Ajuste de la leyenda para ocupar todo el alto ---
+ax.legend(
+    title='Familia',
+    bbox_to_anchor=(1.02, 0, 0.25, 1),  # [x0, y0, ancho, alto] → ocupa toda la altura
+    loc='upper left',
+    ncol=2,                             # número de columnas
+    fontsize=8,
+    title_fontsize=9,
+    frameon=False,
+    mode='expand',                      # distribuye las entradas verticalmente en todo el alto
+    borderaxespad=0.0,
+    columnspacing=1.2,
+    labelspacing=0.8
+)
+
+plt.tight_layout()
+
+# --- Guardar el gráfico como imagen temporal ---
+img_path = 'Grafico_Riqueza_Orden_Familia.png'
+plt.savefig(img_path, dpi=300, bbox_inches='tight')
+plt.close()
+
+# --- Insertar el gráfico en el Excel ---
+wb = load_workbook(excel_path)
+ws = wb.create_sheet('Grafico')
+
+# Insertar la imagen
+img = Image(img_path)
+ws.add_image(img, 'A1')
+
+# Guardar el Excel final
+wb.save(excel_path)
+
+print('✅ Tabla dinámica y gráfico exportados en:', excel_path)
+")
+
+
+```
+
+```{r}
+library(readxl)
+library(knitr)
+library(kableExtra)  # 👈 necesario para el scroll
+
+# Leer el archivo Excel
+tabla <- read_excel("Riqueza_Orden_Familia.xlsx")
+
+# Mostrar tabla completa con desplazamiento
+kbl(tabla, caption = "Vista del archivo Riqueza_Orden_Familia.xlsx") %>%
+  kable_styling(full_width = TRUE, font_size = 12) %>%
+  scroll_box(height = "400px")  # 👈 altura del área visible
+
+```
+
+
+```{r, echo=FALSE, fig.cap="Gráfico generado"}
+knitr::include_graphics("Grafico_Riqueza_Orden_Familia.png")
+```
+
+
+## Curvas de acumulación de especies
+En general, para evaluar la representatividad de los muestreos, se empleó la curva de acumulación de especies para cada una de las coberturas muestreadas, que representa el número de especies acumulado en el inventario frente al esfuerzo de muestreo realizado. De esta manera, la curva de acumulación es la representación gráfica de la cantidad de las especies que van apareciendo en el muestreo. Los cálculos se realizaron utilizando R Studio y Python, disponible en línea. Para determinar la eficiencia de estos muestreos, se utilizaron los estimadores como ACE, Chao de primer orden, Jacknife 1 o Bootstrap, los cuales arrojan resultados más precisos al estimar la riqueza de ensamblajes con gran cantidad de especies “raras".
+
+
+# Riqueza de especies.
+
+Para el presente estudio, la diversidad o riqueza de especies es definida como el número de especies en la zona de estudio, de este modo, y con el fin de hacer una determinación gráfica, se discriminó la totalidad de especies registrados en jerarquías taxonómicas (Orden, Familia, Género, Especie), con el objetivo de identificar el grado de representatividad de cada una.
+
+# Diversidad alfa
+Para este análisis se utilizó R Studio y Python con el fin de realiza los análisis de dominancia de Simpson, equitatividad de Pielou y diversidad de Shannon), los cuales nos indican la diversidad de especies de una comunidad particular a la que consideramos homogénea.
+
+## Índice de Simpson (Ds)
+Expresa la probabilidad de extraer de la comunidad dos (2) individuos capturados al azar que pertenezcan a la misma especie. Es una medida de cuan dominante es una especie, de esta manera las especies comunes tiene mucho peso respecto a las especies raras. Oscila entre 0 y (1-1/S.
+
+## Índice de Shannon (H´)
+El índice de Shannon-Wiener es uno de los índices de medida más simples y de uso más extenso, que mide el grado promedio de incertidumbre para predecir la especie a la que pertenece un individuo dado, elegido al azar dentro de la comunidad. Mide la variedad de especies de un área determinada, indicando su diversidad y frecuencia; una alta diversidad indica un alto grado de desarrollo y estabilidad de la biota; se basa en la abundancia proporcional de las especies como en su riqueza; se incrementa con el número de especies y el número de individuos.
+
+## Índice de equitatividad de Pielou (J)
+El Índice de equitatividad de Pielou (J’) mide la proporción de la diversidad observada con relación a la máxima diversidad esperada. Su valor va de cero a uno de forma que uno corresponde a situaciones donde todas las especies son igualmente abundantes. Esta medida al igual que Shannon considera que todas las especies de la comunidad se han contabilizado en la muestra.
+
+## Curvas rango abundancia
+Las curvas rango-abundancia se emplearon para comparar la distribución de la abundancia y la uniformidad de las especies entre las diferentes unidades de muestreo. Este tipo de representación permite visualizar tanto la riqueza específica (a partir de la longitud del eje de rango) como la dominancia o equidad en la abundancia de las especies (según la pendiente de la curva). Para facilitar la interpretación y reducir la asimetría de los datos, los valores de abundancia fueron transformados mediante una escala logarítmica de base 10 (log₁₀), lo que permite representar de manera proporcional las diferencias entre especies comunes y raras. Estas curvas son ampliamente utilizadas en estudios de caracterización y estructura de comunidades biológicas, ya que permiten evaluar la composición y el grado de dominancia de los taxones en los distintos hábitats o coberturas analizadas.
+
+## Uso de habitat
+Para el análisis del uso de hábitat, se contabilizó el número total de especies registradas en cada cobertura, así como aquellas consideradas exclusivas, es decir, presentes únicamente en una de ellas. Este enfoque permite identificar la representatividad y afinidad de las especies con cada tipo de hábitat, facilitando la comparación de la riqueza y la singularidad biológica entre unidades de muestreo. Las coberturas con mayor número de especies indican una mayor diversidad estructural y funcional del hábitat, mientras que aquellas con un número elevado de especies exclusivas reflejan condiciones particulares que favorecen la presencia de taxones especializados o con requerimientos ecológicos específicos. En conjunto, este análisis ofrece una visión integral sobre cómo las especies utilizan los distintos ambientes disponibles y permite inferir la importancia relativa de cada cobertura en la conservación de la diversidad local.
+
+## Gremios tróficos
+Los gremios tróficos se definieron como omnívoro (consumo de material vegetal, animal y alimentos procesados), Insectívoro (consumo de insectos), Folívoro (consumo de hojas), Granívoro (consumo de granos y semillas), Herbívoro (consumo de vegetales), Hematófagos (consumo de sangre), Frugívoro (consumo de frutos), carnívoro (consumo de carne de otros animales), Nectarívoro (consumo del néctar de las flores), Piscívoro (consumo de peces) y Carroñero (consumo de cadáveres de animales). La caracterización trófica, se realizó en base a los resultados de abundancia relativa, para facilitar la cuantificación de la misma.
+
+# Especies de importancia económica y cultural
+
+## Especies sensibles
+Posterior a esto, se evaluaron las especies sensibles, Estas especies se reconocen como todas aquellas que, debido a alguna característica ecológica o poblacional, son más perceptivas al cambio ambiental que producen las actividades antrópicas. A partir de esto, fueron analizadas aquellas especies que han sido catalogadas como amenazadas de extinción, para lo cual se tuvieron en cuenta las categorías establecidas a nivel global por la Unión Internacional para la Conservación de la Naturaleza UICN (2021), y a nivel nacional por la Resolución 0126 de 2024 del MADS. Así mismo, se analizaron aquellas especies que presentan restricción en su comercio a través de la lista de la Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres (CITES), aquellas que tuvieran rangos de distribución muy pequeños o restringidos (endémicas) y las especies con algún patrón de migración dentro del territorio, para lo cual fue evaluado el Plan Nacional de especies Migratorias de Naranjo y Amaya y Naranjo et al.   y la Guía de las especies migratorias de la biodiversidad en Colombia de Amaya-Espinel y Zapata.
+
+### UICN
+
+Siguiendo los criterios establecidos por la Unión Internacional para la Conservación de la naturaleza (IUCN), las categorías de amenaza han sido definidas como:
+
+En Peligro Crítico (CR): en esta categoría se incluyen las especies que enfrentan un riesgo extremadamente alto de extinción en estado silvestre, en el futuro inmediato.
+
+En Peligro (EN): esta categoría incluye las especies que no están en “peligro crítico”, pero están enfrentando un muy alto riesgo de extinción o deterioro poblacional en estado silvestre, en el futuro cercano.
+
+Vulnerables (VU): un taxón está en la categoría de VU, cuando la mejor evidencia disponible indica que enfrenta un moderado riesgo de extinción o deterioro poblacional a mediano plazo.
+
+### CITES
+
+Las especies amparadas por la Convención sobre el Comercio Internacional de Especies Amenazadas de Fauna y Flora Silvestres (CITES), se encuentran incluidas en tres apéndices según el grado de protección que necesiten, los cuales se describen a continuación:
+
+Apéndice I: Incluye todas las especies en peligro de extinción, y el comercio de esas especies se autorizará solamente bajo circunstancias excepcionales. 
+
+Apéndice II: Incluye las especies que no se encuentran necesariamente en peligro de extinción, pero cuyo comercio debe controlarse a fin de evitar una utilización incompatible con su supervivencia. 
+
+Apéndice III: Incluye especies que están protegidas al menos en un país, el cual ha solicitado la asistencia de otras partes de las CITES para controlar su comercio.
+
+
+Los análisis y gráficos se realizaron con los softwares libres R Studio, Python y una hoja de cálculo de Microsoft Excel. 
+

@@ -1,0 +1,293 @@
+#------------------------------------Análisis de estimadores clásicos de abundancia y bootstrap manual---------------------
+
+#--------------------------------Cargar paquetes y documentos---------------------------------------
+paquetes <- c("readxl", "vegan", "dplyr")
+
+# Instala los que falten
+instalar <- paquetes[!(paquetes %in% installed.packages()[,"Package"])]
+if(length(instalar)) install.packages(instalar)
+
+# Cargar paquetes
+lapply(paquetes, library, character.only = TRUE)
+
+ruta <- "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/3_Tabla_Abundancia_Semanal.xlsx"
+datos <- read_excel(ruta, sheet = 1)
+
+#  Paquete necesario
+library(SpadeR)
+library(tidyverse)
+
+#------------------------------------Crear matriz de abundancia y calcular estimadores clásicos de abundancia---------------------
+#  Convertir tu dataframe 'datos' en una matriz de abundancia
+# Primera columna = ESPECIE
+matriz <- datos %>%
+  column_to_rownames("ESPECIE") %>%
+  as.matrix()
+
+str(matriz)
+colnames(matriz) <- paste0("Unidad", 1:ncol(matriz))
+colnames(matriz)
+
+str(matriz)
+
+library(SpadeR)
+
+# Vector de abundancias totales
+abund_total <- rowSums(matriz)
+
+str(abund_total)
+
+# Calcular estimadores clásicos de riqueza (tipo abundance)
+spade_result <- ChaoSpecies(abund_total, datatype = "abundance")
+
+# Mostrar el resumen
+spade_result
+
+#------------------------------------Calcular estimamdores acomulados por semana---------------
+
+library(dplyr)
+library(tidyr)
+library(openxlsx)
+library(SpadeR)
+
+resultados_list <- list()
+
+for (i in 1:ncol(matriz)) {
+  cat("\n--- Unidad acumulada:", i, "---\n")
+  
+  abund_acumulada <- rowSums(matriz[, 1:i, drop = FALSE])
+  resultado <- ChaoSpecies(abund_acumulada, datatype = "abundance")
+ 
+tabla <- as.data.frame(resultado$Species_table)
+tabla$Estimador <- rownames(resultado$Species_table)
+tabla$Unidad <- paste0("Unidad", i)
+
+  
+  resultados_list[[i]] <- tabla
+}
+
+# --- Unir todas las semanas ---
+resultados_totales <- bind_rows(resultados_list)
+
+# --- Limpiar nombres ---
+resultados_totales <- resultados_totales %>%
+  rename(
+    Mean = Estimate,
+    SD = s.e.,
+    Low = `95%Lower`,
+    Upp = `95%Upper`
+  ) %>%
+  select(Unidad, Estimador, Mean, SD, Low, Upp)
+
+print(resultados_totales)
+
+library(dplyr)
+library(tidyr)
+library(stringr)
+
+# --- 1. Limpiar nombres de los estimadores ---
+resultados_limpios <- resultados_totales %>%
+  mutate(
+    Unidad = trimws(Unidad),
+    Estimador = trimws(Estimador),
+    # Reemplazar espacios, paréntesis, comas, etc. por "_"
+    Estimador = str_replace_all(Estimador, "[^A-Za-z0-9]+", "_"),
+    Estimador = str_replace_all(Estimador, "_+", "_"),
+    Estimador = str_remove_all(Estimador, "^_|_$")
+  )
+
+# --- 2. Pivotar para agrupar Low, Mean y Upp por estimador ---
+resultados_wide <- resultados_limpios %>%
+  pivot_wider(
+    names_from = Estimador,
+    values_from = c(Low, Mean, SD, Upp),
+    names_glue = "{Estimador}_{.value}"
+  )
+
+# --- 3. Reordenar columnas para que queden Low, Mean, Upp juntos ---
+orden_columnas <- resultados_wide %>%
+  select(Unidad, sort(tidyselect::peek_vars())) %>%
+  names()
+
+# Reordenamos columnas para que cada estimador tenga Low, Mean, Upp juntos
+orden_ordenado <- c("Unidad")
+for (est in unique(resultados_limpios$Estimador)) {
+  orden_ordenado <- c(
+    orden_ordenado,
+    paste0(est, c("_Low", "_Mean", "_SD", "_Upp"))
+  )
+}
+# Filtrar solo las columnas que existen
+orden_ordenado <- intersect(orden_ordenado, names(resultados_wide))
+resultados_wide <- resultados_wide[, orden_ordenado]
+
+# --- Calcular Observadas, Singletons y Doubletons por semana ---
+
+
+library(boot)
+library(dplyr)
+
+# --- Crear lista vacía ---
+resumen_list <- list()
+
+# --- Definir una función auxiliar para bootstrap ---
+calc_stats <- function(abund, R = 1000) {
+  # Bootstrap simple
+  boot_res <- boot(data = abund, statistic = function(x, i) {
+    xi <- x[i]
+    c(
+      Observadas = sum(xi > 0),
+      Singletons = sum(xi == 1),
+      Doubletons = sum(xi == 2)
+    )
+  }, R = R)
+  
+  # Calcular media, sd y quantiles
+  resumen <- apply(boot_res$t, 2, function(x) {
+    c(
+      Mean = mean(x, na.rm = TRUE),
+      SD = sd(x, na.rm = TRUE),
+      Low = quantile(x, 0.025, na.rm = TRUE),
+      Upp = quantile(x, 0.975, na.rm = TRUE)
+    )
+  })
+  
+  # Convertir a data.frame con nombres
+  resumen_df <- as.data.frame(t(resumen))
+  resumen_df$Metrica <- rownames(resumen_df)
+  return(resumen_df)
+}
+
+# --- Bucle para acumular semanas ---
+for (i in 1:ncol(matriz)) {
+  abund_acumulada <- rowSums(matriz[, 1:i, drop = FALSE])
+  
+  # Calcular estadísticas bootstrap
+  boot_df <- calc_stats(abund_acumulada, R = 1000)
+  boot_df$Unidad <- paste0("Unidad", i)
+  
+  resumen_list[[i]] <- boot_df
+}
+
+
+# --- Unir todos los resultados del resumen ---
+resumen_total <- bind_rows(resumen_list) %>%
+  # Renombrar correctamente las columnas antes de seleccionar
+  rename(
+    Low = `Low.2.5%`,
+    Upp = `Upp.97.5%`
+  ) %>%
+  select(Unidad, Metrica, Mean, SD, Low, Upp)
+
+# --- Revisar resultado final ---
+print(resumen_total)
+
+library(dplyr)
+library(tidyr)
+
+# --- Paso 1: reemplazar Metrica numérica por nombres claros ---
+resumen_total <- resumen_total %>%
+  mutate(
+    Metrica = case_when(
+      Metrica == 1 ~ "Observadas",
+      Metrica == 2 ~ "Singletons",
+      Metrica == 3 ~ "Doubletons"
+    )
+  )
+
+# --- Paso 2: pivotar para dejar una fila por unidad ---
+resumen_pivot <- resumen_total %>%
+  pivot_wider(
+    names_from = Metrica,
+    values_from = c(Mean, SD, Low, Upp),
+    names_glue = "{Metrica}_{.value}"
+  )
+
+# --- Ver resultado final ---
+print(resumen_pivot)
+
+# --- Reordenar columnas por bloque lógico ---
+resumen_pivot <- resumen_pivot %>%
+  select(
+    Unidad,
+    Observadas_Low, Observadas_Mean, Observadas_SD, Observadas_Upp,
+    Singletons_Low, Singletons_Mean, Singletons_SD, Singletons_Upp,
+    Doubletons_Low, Doubletons_Mean, Doubletons_SD, Doubletons_Upp
+  )
+
+# --- Verificar ---
+print(resumen_pivot)
+
+# --- Integrar resumen con resultados_wide ---
+
+resultados_Final <- left_join(resumen_pivot, resultados_wide, by = "Unidad")
+
+
+
+
+
+#----------------------------------Agregar Bootstraping-----------------------------------------------------
+
+library(boot)
+library(dplyr)
+library(SpadeR)
+
+# --- Función para calcular el estimador Chao1 (corrige el nombre automáticamente) ---
+calc_chao1 <- function(data, indices) {
+  muestra <- data[indices]
+  resultado <- SpadeR::ChaoSpecies(muestra, datatype = "abundance")
+  
+  # Buscar el nombre que contenga "Chao1"
+  fila_chao <- grep("Chao1", rownames(resultado$Species_table), value = TRUE)
+  
+  if (length(fila_chao) == 0) return(NA)
+  
+  valor <- resultado$Species_table[fila_chao[1], "Estimate"]
+  return(valor)
+}
+
+# --- Lista para guardar resultados ---
+bootstrap_list <- list()
+
+# --- Bucle por unidad ---
+for (i in 1:ncol(matriz)) {
+  cat("\n--- Bootstrap para Unidad", i, "---\n")
+  
+  abund_acumulada <- rowSums(matriz[, 1:i, drop = FALSE])
+  
+  # Bootstrap con 1000 repeticiones
+  boot_res <- boot(data = abund_acumulada, statistic = calc_chao1, R = 100)
+  
+  # Media, desviación y percentiles
+  media <- mean(boot_res$t, na.rm = TRUE)
+  sd <- sd(boot_res$t, na.rm = TRUE)
+  low <- quantile(boot_res$t, 0.025, na.rm = TRUE)
+  upp <- quantile(boot_res$t, 0.975, na.rm = TRUE)
+  
+  # Guardar resultados
+  bootstrap_list[[i]] <- data.frame(
+    Unidad = paste0("Unidad", i),
+    Bootstrap_Mean = media,
+    Bootstrap_SD = sd,
+    Bootstrap_Low = low,
+    Bootstrap_Upp = upp
+  )
+}
+
+# --- Unir todos los resultados ---
+bootstrap_total <- bind_rows(bootstrap_list)
+
+print(bootstrap_total)
+
+# --- Integrar con resultados_Final -------------------------------------------------------
+resultados_Final1 <- left_join(resultados_Final, bootstrap_total, by = "Unidad")
+
+# --- 4. Verificar estructura final ---
+glimpse(resultados_Final1)
+
+
+library(openxlsx)
+write.xlsx(resultados_Final1, "D:/CORPONOR 2025/Backet/python_Proyect/Resultados/5_Estimadores_Abundancia.xlsx")
+cat("\n Archivo exportado correctamente con los estimadores agrupados por semana.\n")
+
+

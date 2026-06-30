@@ -1,0 +1,89 @@
+INTERPRETACIÓN AUTOMÁTICA DE RESULTADOS POR METODOLOGÍA
+-------------------------------------------------------
+
+
+### Transecto
+
+1. Número de individuos registrados:
+   - Total registrado: 2917.000
+   - La mayor contribución proviene de Bda (1726.000 individuos).
+   - Otras coberturas con aportes relevantes:
+        * Bgr: 170.000 individuos.
+        * Bfvs: 250.000 individuos.
+        * Bdb: 771.000 individuos.
+
+2. Esfuerzo empleado (horas-hombre):
+   - Esfuerzo total aplicado: 228.000 horas-hombre.
+   - Mayor esfuerzo aplicado en: Bda (108.000 horas-hombre).
+
+3. Éxito de captura:
+   - Éxito general del método: 12.794 individuos por hora-hombre.
+   - Mayor éxito obtenido en: Bda (15.981).
+   - Éxitos observados en otras coberturas:
+        * Bgr: 14.167.
+        * Bfvs: 8.333.
+        * Bdb: 9.885.
+
+-------------------------------------------------------
+
+### Punto de observacion
+
+1. Número de individuos registrados:
+   - Total registrado: 16.000
+   - La mayor contribución proviene de Bda (11.000 individuos).
+   - Otras coberturas con aportes relevantes:
+        * Bdb: 5.000 individuos.
+
+2. Esfuerzo empleado (horas-hombre):
+   - Esfuerzo total aplicado: 8.000 horas-hombre.
+   - Mayor esfuerzo aplicado en: Bda (6.000 horas-hombre).
+
+3. Éxito de captura:
+   - Éxito general del método: 2.000 individuos por hora-hombre.
+   - Mayor éxito obtenido en: Bdb (2.500).
+   - Éxitos observados en otras coberturas:
+        * Bda: 1.833.
+
+-------------------------------------------------------
+
+### Red de niebla
+
+1. Número de individuos registrados:
+   - Total registrado: 16.000
+   - La mayor contribución proviene de Bda (13.000 individuos).
+   - Otras coberturas con aportes relevantes:
+        * Bfvs: 1.000 individuos.
+        * Bdb: 2.000 individuos.
+
+2. Esfuerzo empleado (horas-hombre):
+   - Esfuerzo total aplicado: 13.000 horas-hombre.
+   - Mayor esfuerzo aplicado en: Bda (9.000 horas-hombre).
+
+3. Éxito de captura:
+   - Éxito general del método: 1.231 individuos por hora-hombre.
+   - Mayor éxito obtenido en: Bda (1.444).
+   - Éxitos observados en otras coberturas:
+        * Bfvs: 0.500.
+        * Bdb: 1.000.
+
+-------------------------------------------------------
+
+### Camara Trampa
+
+1. Número de individuos registrados:
+   - Total registrado: 136.000
+   - La mayor contribución proviene de Bdb (71.000 individuos).
+   - Otras coberturas con aportes relevantes:
+        * Bda: 65.000 individuos.
+
+2. Esfuerzo empleado (horas-hombre):
+   - Esfuerzo total aplicado: 3600.000 horas-hombre.
+   - Mayor esfuerzo aplicado en: Bda (2520.000 horas-hombre).
+
+3. Éxito de captura:
+   - Éxito general del método: 0.038 individuos por hora-hombre.
+   - Mayor éxito obtenido en: Bdb (0.066).
+   - Éxitos observados en otras coberturas:
+        * Bda: 0.026.
+
+-------------------------------------------------------
